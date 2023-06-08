@@ -1,0 +1,10 @@
+# ignore buildings
+/PLATINUM_D*/*
+/PLATINUM_R*/*
+/GOLD_D*/*
+/GOLD_R*/*
+.cproject
+.project
+
+# ignore launch files
+*.launch

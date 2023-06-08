@@ -1,0 +1,64 @@
+#include <modbus/modbus.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <iostream>
+
+
+
+// Encoder config
+Mas3USB mas("MAS3-INTERFACE0");
+vector<float> enc;
+vector<float> enc_prev;
+int Rotation_cnt;
+
+
+
+// Mas3USB mas1("MAS3-INTERFACE1");
+// vector<float> enc1;
+
+// Encoder Filter
+filter f;
+
+
+// Mbus config
+#define MBUS_ARRAY_LIM 150
+#define READ_OUT_START_IDX 0
+#define READ_OUT_CNT 80
+#define WRITE_IN_START_IDX 110
+#define WRITE_IN_CNT 80
+
+enum mBusStartId
+{
+	eTimeStartId=0,
+	eAx1=10,
+	eEnc=110,
+};
+
+modbus_t *mb; //modbus_pointer
+uint16_t tab_reg[MBUS_ARRAY_LIM]; //pointer for save modbus driven values.
+int localRegister [MBUS_ARRAY_LIM];
+
+
+int mbus_h, mbus_m, mbus_s,mbus_ms;
+// int mbus_h, mbus_m, mbus_s,mbus_ms;
+int init_mbusregister(string ip_adress, int port_num=MODBUS_TCP_DEFAULT_PORT);
+int read_64bit_from_mbus16bit(uint16_t *reg, int startRef);
+void send_64bit_to_mbus16bit(double arg_value, uint16_t* regArr_of_mbus, int startRef);
+void loading_from_mbus(int start_ref=READ_OUT_START_IDX, int cnt_ref=READ_OUT_CNT);
+void upload_to_mbus(int start_ref=WRITE_IN_START_IDX, int cnt_ref=WRITE_IN_CNT);
+double cvt_encRadian_to_encDouble(double rad_angle, double prev_angle);
+
+
+// int mbus_flag = init_mbusregister("192.168.2.34", MODBUS_TCP_DEFAULT_PORT);
+  
+//State Definition
+enum StateNumbaer 
+{
+  Idling,
+  SetEnc,		// Read the encoder board
+  SetModbus,		// Read the Modbus activation
+  StartWhileLoop,		// 
+  TerminationProcess
+};
+int STATE_ID= Idling;

@@ -1,0 +1,15 @@
+# ignore idea
+/.idea/*
+
+# ignore buildings
+/PLATINUM_*/*
+
+# ignore compiled garbages
+/.cproject/
+/.project/
+
+# ignore launch object
+/*.launch/
+
+
+

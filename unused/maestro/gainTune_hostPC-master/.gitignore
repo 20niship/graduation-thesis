@@ -1,0 +1,14 @@
+# ignore builds
+/cmake-build-debug/*
+/build*/*
+
+#ignore the test .csv
+*.csv
+
+#ignore the log
+/log*/*
+
+#ignore the .idea
+/.idea*/*
+
+####

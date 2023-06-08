@@ -1,0 +1,231 @@
+#include <iostream>
+#include <iomanip>
+#include "encusb.hpp"
+#include "mas3if.hpp"
+#include "filter.hpp"
+#include <math.h>
+#include <stdio.h>
+
+// modbus
+#include "test.hpp"
+#include <modbus/modbus.h>
+#include <math.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdint.h>
+
+#include <string.h>
+
+using namespace std;
+
+
+int main() {
+
+#if 0
+    EncUSB enc;
+    while(1){
+      if(enc.recv_packet()){
+
+        vector< int > edata=enc.get_data();
+
+        for(int i=0;i<5;i++){
+      std::cout<<edata[i]<<" ";
+        }
+        std::cout<<std::endl;
+
+      }
+    }
+#else
+
+    switch(STATE_ID)
+    {
+        case Idling:
+        {
+            STATE_ID = 1;
+        }
+
+        case SetEnc:
+        {
+            Rotation_cnt=0;
+            f.set_para(1, 5);
+            if (mas.recv_packet()){
+                cout << "Read  enc1 " << endl;
+            }
+            else{
+                cout << "Cannot read encoder " << endl;
+                break;
+            }
+            STATE_ID = SetModbus;
+        }
+
+        case SetModbus:
+        {
+            int mbus_flag = init_mbusregister("192.168.2.34", MODBUS_TCP_DEFAULT_PORT);
+            if(mbus_flag != 0){
+                break;
+            }
+            STATE_ID = StartWhileLoop;
+        }
+
+        case StartWhileLoop:
+        {
+            while (1) {
+            loading_from_mbus();
+            if (mas.recv_packet()) {
+                enc = mas.get_data();
+                enc_prev = mas.get_prev_data();
+                f.setVal(enc[0]);
+                // cout << "prev : " << enc_prev[0] << " Now " << enc[0];
+                // cout <<  <<" : " << enc_prev[0] << " Now " << enc[0];
+                // cout <<  " / int: " << cvt_encRadian_to_encDouble(enc[0], enc_prev[0]);
+	            // cout << "####" << tab_reg[30] << "_/_" << tab_reg[31];
+                }
+                // cout << endl;
+            upload_to_mbus();
+            //usleep(500);
+	       // usleep(100);
+            }
+            STATE_ID = TerminationProcess;
+        }
+
+        case TerminationProcess:
+        {
+            cout << "Terminate process" << endl;
+            modbus_close(mb);
+        }
+
+        default:
+            cout << "Default" << endl;
+            modbus_close(mb);
+            break;
+  }
+
+
+
+    // Mas3USB mas("MAS3-INTERFACE0");
+    // vector<float> enc;
+    // init_mbusregister("192.168.2.34", MODBUS_TCP_DEFAULT_PORT);
+    // filter f;
+    // f.set_para(1, 5);
+    // while (1) {
+    //     //enc.recv_packet();
+    //     //vector<int> enc_data=enc.get_data();
+    //     loading_from_mbus();
+    //     if (mas.recv_packet()) {
+    //         enc = mas.get_data();
+    //         f.setVal(enc[0]);
+    //         std::cout << "CH3-1:" << std::setprecision(3) << enc[0] << " /";
+    //         std::cout << std::endl;
+
+    //     }
+    //     //usleep(500);
+    // }
+
+#endif
+
+    return 0;
+}
+
+
+int init_mbusregister(string ip_adress, int port_num){
+    const char *name_char = ip_adress.c_str();
+    cout << "Searching " << name_char << " .... " <<endl;
+    for( int i=0;i<MBUS_ARRAY_LIM;i++){
+        tab_reg[i]=0;
+    }
+    mb = modbus_new_tcp(name_char, port_num); //create a libmodbus context for TCP/IPv4 
+    modbus_set_slave(mb,1); //set slave number in the context
+    if(modbus_connect(mb)==-1){
+        std::cerr<<"connection error\n";
+        return -1;
+        }
+    else{
+        cout << "success connection" << endl;
+        int ret=modbus_read_registers(mb,0,50,tab_reg); // cnt has limitaion .... 
+        if(ret<0){
+            std::cerr<<"reading error\n";
+            return-1;
+        }
+        return 0;
+    }
+}
+
+void send_64bit_to_mbus16bit(double arg_value, uint16_t* regArr_of_mbus, int startRef){
+    // Convert double(64 bit) to int(32 bit) .... LREAL to DINT
+    int int_tmp_int = int(arg_value);
+    // uint16_t v1 = uint16_t(int_tmp_int/32767); // 32767 = pow(2, 15) -1
+    // uint16_t v2 = uint16_t(int_tmp_int - int(v1)*32767);
+    // regArr_of_mbus[startRef] = v1;
+    // regArr_of_mbus[startRef+1] = v2;
+    // Byte mask style
+    regArr_of_mbus[startRef] = (int_tmp_int/32767)&0xffff;
+    regArr_of_mbus[startRef+1] = (int_tmp_int - regArr_of_mbus[startRef]*32767)&0xffff;
+}
+
+int read_64bit_from_mbus16bit(uint16_t *reg, int startRef){
+    int hi = (reg[startRef]<<16)>>16;
+    int lo = (reg[startRef+1]<<16)>>16;
+    int ret = hi*32767 + lo;
+    return ret;
+}
+
+void loading_from_mbus(int start_ref, int cnt_ref){
+    // cout << start_ref<< endl;
+    // cout << cnt_ref<< endl;
+    int ret=modbus_read_registers(mb,start_ref,cnt_ref,tab_reg);
+    if(ret<0){
+        std::cerr<<"reading error ___ \n";}
+    localRegister[eTimeStartId  ] =    read_64bit_from_mbus16bit(tab_reg,eTimeStartId);
+    localRegister[eTimeStartId+2] =    read_64bit_from_mbus16bit(tab_reg,eTimeStartId+2);
+    localRegister[eTimeStartId+4] =    read_64bit_from_mbus16bit(tab_reg,eTimeStartId+4);
+    localRegister[eTimeStartId+6] =   read_64bit_from_mbus16bit(tab_reg,eTimeStartId+6);
+    mbus_h  = localRegister[eTimeStartId  ];
+    mbus_m  = localRegister[eTimeStartId+2];
+    mbus_s  = localRegister[eTimeStartId+4];
+    mbus_ms = localRegister[eTimeStartId+6];
+    cout << mbus_h << ":" << mbus_m << ":" << mbus_s << ":" << mbus_ms << "___";
+    // cout << "pos=" << read_64bit_from_mbus16bit(tab_reg,eAx1) << "___";
+    // cout << "vel=" << read_64bit_from_mbus16bit(tab_reg,eAx1+2) << "___";
+    // cout << "tor=" << read_64bit_from_mbus16bit(tab_reg,eAx1+4) << "___";
+    localRegister[eAx1  ] =    read_64bit_from_mbus16bit(tab_reg,eAx1);
+    localRegister[eAx1+2] =    read_64bit_from_mbus16bit(tab_reg,eAx1+2);
+    localRegister[eAx1+4] =    read_64bit_from_mbus16bit(tab_reg,eAx1+4);
+    cout << "pos" << localRegister[eAx1] << " vel" << localRegister[eAx1+2] << " cur" << localRegister[eAx1+4];
+}
+
+
+void upload_to_mbus(int start_ref, int cnt_ref){
+    double arg_value = cvt_encRadian_to_encDouble(enc[0], enc_prev[0]);
+    cout << "   target "  << arg_value << endl;
+    send_64bit_to_mbus16bit(arg_value, tab_reg, eEnc);
+    // send_64bit_to_mbus16bit(-6782., tab_reg, 30+2);
+    // send_64bit_to_mbus16bit(12132., tab_reg, 30+4);
+    modbus_write_registers(mb,WRITE_IN_START_IDX,20,tab_reg);
+}
+
+double cvt_encRadian_to_encDouble(double rad_angle, double prev_angle){
+    int detect_tern = rad_angle * prev_angle;
+    if (detect_tern < 0){
+        if(rad_angle - prev_angle > 1.0 * pow(2, -16)){
+            // Turn to the MINUS direction : 
+            Rotation_cnt -= 1;
+        }
+        else{
+            // Turn to the PLUS direction : 
+            Rotation_cnt += 1;
+        }
+    }
+    double ret = (( rad_angle + M_PI) / ( 2* M_PI ) + Rotation_cnt )* 4095.; // Sensor resolution : 2**12
+    return ret;
+}
+
+// double cvt_encRadian_to_encDouble(double rad_angle){
+    //     double ret = ( rad_angle + M_PI) / ( 2* M_PI ) * 4095.; // Sensor resolution : 2**12
+    //     if(ret < 0){ ret = 0;}
+    //     else if(ret > 4095.){
+    //         // ret = 4095.0;
+    //     }
+    //     return ret;
+    // }
+
+
