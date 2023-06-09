@@ -23,12 +23,21 @@ include_directories(${EXTRA_INCLUDES})
 
 set(CMAKE_CXX_STANDARD 11)
 
+# -I"C:\cygwin\opt\crosstool\gcc-linaro-arm-linux-gnu\arm-linux-gnueabihf\libc\usr\include" 
+# -I"C:\cygwin\opt\crosstool\gcc-linaro-arm-linux-gnu\arm-linux-gnueabihf\include\c++\4.7.3"
+# -I"C:/GMAS/includes"
+# -I"C:/GMAS/includes/cpp"
+# -I../ -I"C:/cygwin/tmp"
+# -I"C:/GMAS/includes/embl"
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -Wall -fmessage-length=0 -std=c++11 -g")
+
 set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/test_project2.cpp
 )
 
 add_executable(example ${SOURCES})
-link_directories(path/to/lib_folder)
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib)
 
 file(GLOB LIB_SOURCES 
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/*.a
