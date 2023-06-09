@@ -1,3 +1,6 @@
+#include <semaphore.h>
+#include <pthread.h>
+
 /*
 ============================================================================
  Name : CPP_Template.h

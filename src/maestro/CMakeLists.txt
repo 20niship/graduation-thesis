@@ -4,13 +4,18 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # set(CMAKE_C_COMPILER "C:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/bin/arm-linux-gnueabihf-gcc.exe")
 # set(CMAKE_CXX_COMPILER "C:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/bin/arm-linux-gnueabihf-g++.exe")
-set(CMAKE_SYSTEM_NAME Linux)
+
+# set(CMAKE_SYSTEM_NAME Arm)
 
 set(COMPILER_PATH /home/mech-user/Downloads/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin)
-set(CMAKE_CXX_COMPILER ${COMPILER_PATH}/arm-linux-gnueabihf-g++)
-set(CMAKE_C_COMPILER  ${COMPILER_PATH}/arm-linux-gnueabihf-gcc) 
+# set(CMAKE_CXX_COMPILER ${COMPILER_PATH}/arm-linux-gnueabihf-g++)
+# set(CMAKE_C_COMPILER  ${COMPILER_PATH}/arm-linux-gnueabihf-gcc) 
+set(CMAKE_CXX_COMPILER /usr/bin/powerpc-linux-gnu-g++)
+set(CMAKE_C_COMPILER  /usr/bin/powerpc-linux-gnu-gcc)
 
 project(ExampleProject)
+
+find_package(Threads)
 
 set(EXTRA_INCLUDES 
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/includes
@@ -37,13 +42,21 @@ set(SOURCES
 )
 
 add_executable(example ${SOURCES})
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib)
+link_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib
+  ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform
+)
 
 file(GLOB LIB_SOURCES 
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/*.a
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/*.lib
+  ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform/*.a
+  ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform/*.lib
 )
-target_link_libraries(example ${LIB_SOURCES})
+target_link_libraries(example 
+  ${LIB_SOURCES}
+  Threads::Threads
+)
 
 
 
