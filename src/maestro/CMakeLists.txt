@@ -10,11 +10,16 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(COMPILER_PATH /home/mech-user/Downloads/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin)
 # set(CMAKE_CXX_COMPILER ${COMPILER_PATH}/arm-linux-gnueabihf-g++)
 # set(CMAKE_C_COMPILER  ${COMPILER_PATH}/arm-linux-gnueabihf-gcc) 
+
 set(CMAKE_CXX_COMPILER /usr/bin/powerpc-linux-gnu-g++)
 set(CMAKE_C_COMPILER  /usr/bin/powerpc-linux-gnu-gcc)
 
+set(CMAKE_C_BYTE_ORDER LITTLE_ENDIAN)
+set(CMAKE_CXX_BYTE_ORDER LITTLE_ENDIAN)
+
 project(ExampleProject)
 
+set(CMAKE_EXECUTABLE_SUFFIX ".pexe")
 find_package(Threads)
 
 set(EXTRA_INCLUDES 
