@@ -1,50 +1,34 @@
 B4のNishimiya Tadashiといいます。これから私の研究テーマに関する発表を始めます
 
 Im Nishimiya Tadashi from B4. I am going to start my presentation on my research topic.
-I know it's not very detailed, but thank you in advance for listening
+
+研究手法は前回のミーティングと変わっていないので、今日は主にスケジュールやシステムについて話します
+
+The research methodology has not changed since our last meeting, so I will omit some of the specific methods and today I will mainly talk about schedules and system architecture
+
 
 
 ## Research Theme & Motivation 
 
-私はロボットのモーション生成に興味があります。そして、最近の機械学習の目覚ましい変化を見ていて、動作計画に機械学習を使う研究に興味を持つようになりました。従来の人の手で計画を定義するのではなく、機械学習である程度動的に経路生成することでよりロバストで人間らしい動きができるのではないかと考えたからです。
-また、ティーチングや模倣学習の技術を使って効率的に学習させることで、さらに早く効率的に動作をおぼえられるのではないかと思いました。以上が私のこの研究のモチベーションです
+私の研究は、ロボットアームのペグインサーションなどのモーション生成を模倣学習を使って行うことです。
+
+近年の最近の機械学習の目覚ましい変化を見ていて、動作計画に機械学習を使う研究に興味を持ち、機械学習を使ってよりロバストで正確な動きができるのではないかと考えたからです。また、模倣学習の技術を使ってさらに早く効率的に動作をおぼえられるのではないかと思いました。以上が私のこの研究のモチベーションです
+
+My research involves the use of imitation learning to generate motion, such as peg insertion, for robotic arms.
+
+I became interested in research using machine learning for motion planning after observing the recent remarkable develops in machine learning , and I thought that machine learning will be used to produce more robust and accurate movements. 
 
 
-I am interested in motion planning for robots. And, seeing the recent remarkable changes in machine learning, I have become interested in research on using machine learning for motion planning or for robotics. 
-
-For example, supervised learning methods based on behavior cloning (BC) suffer from distributional shifts, where agents greedily imitate the teached behavior and move different motions from the demonstration state due to error accumulation.  But, generative adversarial imitation learning (GAIL) overcome this problem by training learning agents to match demonstrations over a long horizon.
-
-For, such implovements of machine learning, 
-
-This is because I thought that instead of defining plans by programming as in the past or mathematically, machine learning could be used to generate pathways dynamically to produce more robust and smooth motion.
-
-I also thought that by using teaching and imitation learning techniques to learn efficiently, it would be possible to learn movements even faster and more efficiently. I thought this might be a solution to the problem of machine learning taking a long time to learn, and I also thought it might be widely useful in industry, etc.　This is my motivation for this research.
-
-
-## Related Works
-
-過去の研究でティーチングを用いた模倣学習は多くの研究で行われています。中でも良い結果を残したものとして以下のような研究を調べてみました。
-まず、この研究室で行われた研究で、双椀アームを使ってバナナの皮を剥くタスクを生成することに成功しました。この手法がティーチングと行動クローニングを行い、様々なバナナの形状についてロバストなアクションを生成することができました。別の研究ではペグの画像を認識して複数のペグに対して挿入するアクションを作ることに成功しました。この研究の入力は画像ですが、ロボットアームのトルクを入力に使用した研究例として、いくつかのペグ員サーションの例があります。これらは良い結果を残していますが、ハンドの先端にトルクセンサをつけたもので、関節にかかるモーメントなどは考慮されていませんでした。
-
-In the past, imitation learning has been used in many studies. I examined the following studies.  First, a study conducted in this lab successfully generated a task to peel a banana using a twin arm robots. The method performed teaching and action cloning and was able to generate robust actions for a variety of banana shapes. Another study successfully recognized images of pegs and created actions to insert for multiple types of pegs. While the input for this study was an image, there are several examples of studies that used the torque of a robotic arm as input for several peg-insertions. These had good results, and they were based on torque sensors attached to the tip of the hand, 
-and did not take into account the moments applied to the joints.
-However, few studies have used joint torques and imitation learning for peg insertion tasks.
 
 ## Research Plan
 
-そこで、私は今研究室で作成されている双椀アームを制作し、このロボットを本研究に使用しようと考えています。このロボットはダイレクトドライブ、（関節にブラシレスモーターが直接接続されている形状）をしている一般的な産業用ロボットとは異なる形状をしています。またギアを使っているところもギア比が低く、柔軟な動作が可能になっています。以下の動画がその例です。このようにモーターの電源を切っている段階では自由に動かすことができるので、このロボット一台でティーチングとラーニングを同時に行い、学習させたいと考えています。学習させるタスクはペグインサーションを考えています。最初は挿入動作のみを学習させ、徐々に探索などタスクを複雑化していきたいと思っています
+そこで、私は今研究室で作成されている双椀アームを制作し、このロボットを本研究に使用しようと考えています。このロボットはダイレクトドライブの低ギア比のモーターを使っており、ロボット一台でティーチングとラーニングを同時に行い学習させたいと考えています。学習させるタスクはペグインサーションを考えています。最初は挿入動作のみを学習させ、徐々に探索などタスクを複雑化していきたいと思っています。
 
-
-Therefore, I am planning to use a robot arm that is currently under construction  in our lab and use this robot for this research. Currently, there may be a problem with output torque, etc., and we would like to improve this area.  This robot has a different type of design from general often used  industrial robots 
-that have direct drive (brushless motors directly connected to the joints). Also, the gears used in this robot have a low gear ratio , Very low gear ratio, about 1:4 to 1:5..  So this robot can move smoothly ,   and flexible. The following video is an example. Since the robot can move freely when the motors are turned off, we would like to use this single robot for teaching and learning at the same time. 
-
-In Previous researches, teaching tasks using with in VR or using human arms had many problems. For example, the actual range of motion of the robot and the range of motion of the human VR space are different, so unnecessary areas are also learned or . Another problem is this method may have to solve  inverse kinematics to convert human arm space to robotics, which takes even more time to learn.so, I believe that using the same robot and same model to generate training data will allow us to focus more on the learning task, which will result in faster learning.
-
-The task to be learned is peg insertion. At first, we would like the robot to learn only insertion movements, and then gradually increase the complexity of the task, such as searching.We want to achieve robust motion generation for various peg states and locations using joint angle torques and other inputs.
+Therefore, I am planning to use two robot  arm that we are now creating for this study. This robot uses direct drive motors or low gear ratio motor boxes so that I would like to do teaching and learning tasks  with this single robot. The task to be learned is peg insertion. I would like the robot to learn only insertion movements at first, and then gradually increase the complexity of the task, such as exploration.  Eventually, I would like to try it with a soft object like a pocky or some food.
 
 
 
-## System Architecture
+## System Architecture 2min
 
 次に、スケジュールについて説明する前に全体のシステム構造を示します。
 
@@ -54,41 +38,50 @@ The task to be learned is peg insertion. At first, we would like the robot to le
 
 そして、最後にその２つのモジュールを制御するモジュールとして、学習モジュールがあります。ここで学習データを収集し、それを元にオンラインまたはオフラインで学習するシステムを組み込んでいます。そして、ビジュアライザ等と通信するこで状態を表示したりできるようにしようと考えています
 
+Next, I'll show the overall system structure before discussing the schedule.
+
+The learning system for this robotic arm consists mainly of three major modules, each of which passes data by means of interprocess communication. The first is the robot arm. In this, a Modbus server is up and running, which performs the tasks of reading the values of each of the arm's sensors and communicating the current command values for the motors.
+
+Next is the simulator. The creation of the simulator is a low priority compared to the other two systems, and may not be used in the graduation thesis. The reason is that I do not have the CAD model of this robot, the mass of each link, and other data needed for simulation, and it would be expensive to measure them and replace them with CAD. However, we think it would be better to have a visualizer that displays the state and logs of the robot arm . Also, I want to detects when a robot tries to assume a physically impossible posture during learning steps, soI want to make a simple fowrward kinematics simulator and visualizer for this purpose.  
+
+And finally, there is a learning module that controls those two modules. This is where I collect the learning data and incorporate a system that learns online or offline based on that data. 
 
 
-## schedule and task 
+
+## schedule and task  4min
 
 最後にスケジュールについて話します。以下のようなスケジュールで７月の中間諮問まで進めようと考えています
 
+まず、今はロボットアーム本体のトルク制御のプログラムを書いています。モーター２つが設置されただけの簡単な試験機を使い、電流制御を使ってバイラテラル動作をさせるのが目標です。EtherCATやモータードライバーの設定の問題で開発が止まることもあったのですが過去のプロジェクトで使っていたプログラムなどを参考にしながら製作中です。なお、過去のプロジェクトでバイラテラル動作をさせたときは追従性がとても悪く遅延があったそうですが、そのあたりの問題を解決したいと思っています
+
+他のタスクとして、ロボットアームのモータードライバの取り替えなどがあります。現在のモーターでは手首周りのトルクが出ないので、先端部のモータを付け替える予定です。それと同時に、Peg Insertion用のハンドの先っぽも作ろうと考えています
+
+以上のようなタスクを経て、中間諮問までにはロボットアーム全体の制御を目標にしています。例えば２つのロボットアームでバイラテラル制御を行うには、重力補償を考えたロボットアームの制御システム等が必要であり、それらのプログラムの開発にも今後取り組みたいと考えています。
+
+そして、その後は学習データの収集または、オンラインでの模倣学習をおこない、少しずつ複雑なタスクにチャレンジしたいと考えています。
 
 
 
+Finally, I will discuss the schedule. I am planning to proceed with the following schedule until the midterm exam 
+
+First, I am now writing a program for torque control of the motor, using a simple test machine with only two motors installed. This goal is to move bilaterally using current controller. In the past projects, when executing  bilateral motion , the tracking performance was very poor and there were delays, and I would like to solve these problems.
+
+Other tasks include replacing the motor drivers for the robot arm. The current motor does not produce enough torque around the wrist, so I plan to replace the motor at the tip. At the same time, I am also planning to make a hand tip for Peg Insertion!
+
+After going through the above tasks, my goal is to control the entire robot arm by the mid-term exam. For example is the bilateral control
+
+ in order to perform bilateral control with two robot arms, I need a control system for the robot arms that considers gravity compensation, etc. I would like to work on the development of those programs in the future.
+
+After that, I would like to challenge more complex tasks little by little by collecting learning data or learning by imitation online.
 
 
 
+### ending
+
+以上で今後のスケジュールの説明を終わります。モータ制御まわりのトラブルやドライバーの開発元との連絡等に時間がかかってしまい、まだお見せできるような進捗がないので、中間諮問までにはそれっぽいアウトプットができるように進めていきます。
+
+This concludes our schedule for the future. Due to the time required for troubles around motor control and communication with the company of the driver developer, I have not yet made good progress that I can show you, so I will proceed so that I can produce some output  by the mid-term exam.
 
 
-
-
-
-
-
-
-より直接的　司令してトルクがそのままでるという
-壊れやすいオブジェクト
-リジッドなもの→柔らかい
-リジッドすぎると壊しちゃったみたいなものも怒りそうなので、力で押し付けてっていうのがそのままできる。
-位置司令をしてさきっぽの弾性で制御しているのが、それをする必要がなくて望む力でそのまま押し当てられる
-
-手先に力センサついてるので　
-
-
-まる棒→資格、
-
-
-以上が参考文献です
-聞いてくれてありがとうございました
-
-These are the references
 Thank you for listening.
 
