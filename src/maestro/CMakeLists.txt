@@ -7,15 +7,23 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # set(CMAKE_SYSTEM_NAME Arm)
 
-set(COMPILER_PATH /home/mech-user/Downloads/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin)
+# set(COMPILER_PATH /home/mech-user/Downloads/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin)
 # set(CMAKE_CXX_COMPILER ${COMPILER_PATH}/arm-linux-gnueabihf-g++)
 # set(CMAKE_C_COMPILER  ${COMPILER_PATH}/arm-linux-gnueabihf-gcc) 
 
+SET(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_CXX_COMPILER /usr/bin/powerpc-linux-gnu-g++)
 set(CMAKE_C_COMPILER  /usr/bin/powerpc-linux-gnu-gcc)
 
+# SET(CMAKE_C_COMPILER /usr/bin/arm-linux-gnueabihf-gcc)
+# SET(CMAKE_CXX_COMPILER /usr/bin/arm-linux-gnueabihf-g++)
+
 set(CMAKE_C_BYTE_ORDER LITTLE_ENDIAN)
 set(CMAKE_CXX_BYTE_ORDER LITTLE_ENDIAN)
+
+
+# set linker flags
+set(CMAKE_EXE_LINKER_FLAGS  "-Wl,--hash-style=sysv" )
 
 project(ExampleProject)
 
