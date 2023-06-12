@@ -24,7 +24,7 @@ I became interested in research using machine learning for motion planning after
 
 そこで、私は今研究室で作成されている双椀アームを制作し、このロボットを本研究に使用しようと考えています。このロボットはダイレクトドライブの低ギア比のモーターを使っており、ロボット一台でティーチングとラーニングを同時に行い学習させたいと考えています。学習させるタスクはペグインサーションを考えています。最初は挿入動作のみを学習させ、徐々に探索などタスクを複雑化していきたいと思っています。
 
-Therefore, I am planning to use two robot  arm that we are now creating for this study. This robot uses direct drive motors or low gear ratio motor boxes so that I would like to do teaching and learning tasks  with this single robot. The task to be learned is peg insertion. I would like the robot to learn only insertion movements at first, and then gradually increase the complexity of the task, such as exploration.  Eventually, I would like to try it with a soft object like a pocky or some food.
+Therefore, I am planning to use two robot  arm that we are now creating for this study. This robot uses direct drive motors or low gear ratio motor boxes so that I would like to do teaching and learning tasks  with this single robot. The task to be learned is peg insertion using only sensors (which means I dont use cameras or other high functionality sensors). I would like the robot to learn only insertion movements at first, and then gradually increase the complexity of the task, such as exploration.  Eventually, I would like to try it with a soft object like a pocky or some food.
 
 
 
@@ -71,6 +71,10 @@ Other tasks include replacing the motor drivers for the robot arm. The current m
 After going through the above tasks, my goal is to control the entire robot arm by the mid-term exam. For example is the bilateral control
 
  in order to perform bilateral control with two robot arms, I need a control system for the robot arms that considers gravity compensation, etc. I would like to work on the development of those programs in the future.
+
+After that, I am Then work on the learning task
+
+The machine is designed to be more rigid compared to the power output of the motors, so it is designed to be moved online for long periods of time while learning.
 
 After that, I would like to challenge more complex tasks little by little by collecting learning data or learning by imitation online.
 
