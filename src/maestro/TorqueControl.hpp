@@ -21,6 +21,7 @@ public:
 
   bool init(const std::string& axisName, const MMC_CONNECT_HNDL& gConnHndl);
   bool poweron();
+  void abort();
   bool poweroff();
   bool check_status();
 
@@ -36,6 +37,8 @@ private:
   int target_pos;
   int torLim_mA = 6000;
   int target_pos_old;
+
+  MMC_CONNECT_HNDL conn_handle;
 
   // For temporals to use torControl
   double now_pos, now_vel;

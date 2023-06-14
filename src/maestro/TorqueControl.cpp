@@ -4,6 +4,38 @@
 #include "TorqueControl.hpp"
 #include "logger.h"
 
+#ifdef WIN32
+#define WAIT_SLEEP_MILLI(WAIT_MILLI_SEC) Sleep(WAIT_MILLI_SEC);
+#else
+#define WAIT_SLEEP_MILLI(WAIT_MILLI_SEC) usleep(WAIT_MILLI_SEC*1000);
+#endif
+
+static int WaitFbDone(MMC_CONNECT_HNDL ComHndl, unsigned int break_state, CMMCSingleAxis * sng_axis)
+{
+int end_of = 0;
+int iCount = 0;
+unsigned int ulState;
+while( ! end_of)
+{
+iCount ++;
+end_of = 1;
+/* Read Axis Status command server for specific Axis */
+ulState = sng_axis->ReadStatus();
+if (!(ulState & break_state))
+{
+end_of = 0;
+WAIT_SLEEP_MILLI(20);
+}
+}
+if(0)
+{
+MMC_SHOWNODESTAT_IN showin;
+MMC_SHOWNODESTAT_OUT showout;
+MMC_ShowNodeStatCmd(ComHndl,sng_axis->GetRef(),&showin,&showout);
+}
+return 0;
+}
+
 TorControls::TorControls(double kp_pos, double kp_vel, double ki_vel, double curLimHard) {
   // TODO Auto-generated constructor stub
   kp = kp_pos / (2.0 * M_PI); // [rad/s] to [/s]
@@ -64,14 +96,30 @@ void TorControls::reset_integral() {
 }
 
 void TorControls::p_pi_controlAxis() {
+  #if 0
+MC_BUFFERED_MODE_ENUM eBufferMode;
+OPM402 drvMode;
+double dbDistance;
+float fVel, fAcceleration,fDeceleration,fJerk;
+/* Set sutiable mode for MoveVelocity */
+fVel = 100000.0;
+axis.MoveVelocity(fVel, eBufferMode);
+LOGD << "MoveVelocity" << LEND;
+/* Sleep for 2 Sec */
+WAIT_SLEEP_MILLI(2000)
+LOGD << "STOP" << LEND;
+axis.Stop(100000000.0, 1000000000.0,eBufferMode);
+WaitFbDone(conn_handle, NC_AXIS_STAND_STILL_MASK, &axis);
+LOGD << "Done" << LEND;
+/* Retrive the keeping mode */
+return;
+#endif
+
   now_pos              = axis.GetActualPosition();
   now_vel              = axis.GetActualVelocity();
   const double pos_err = (target_pos * 1.0 - now_pos);
   const double lim_mA  = get_currentLim();
 
-  std::cout << "[pos] " << now_pos << " [vel] " << now_vel << " [tar] " << target_pos << " [tor] " << tor_order << " [lim] " << lim_mA << " [int] " << tor_order_integral << std::endl;
-
-  // 1. set velocity
   const auto v_order = kp * pos_err;
   tor_order          = kd * (v_order - now_vel + tor_order_integral);
 
@@ -80,23 +128,13 @@ void TorControls::p_pi_controlAxis() {
   }
 
   tor_order = std::min(std::max(tor_order, -lim_mA), lim_mA);
-
-  // axis.MoveTorque(tor_order, 5.0 * pow(10, 6), 1.0 * pow(10, 8), MC_ABORTING_MODE);
+  std::cout << "p " << now_pos << " \t v " << now_vel << " \t t " << target_pos << " \t [tor] " << tor_order << " [lim] " << lim_mA << std::endl;
+  axis.MoveTorque(tor_order, 5.0 * pow(10, 6), 1.0 * pow(10, 8), MC_ABORTING_MODE);
 
   //			single_axis.MoveAbsoluteRepetitive(target_pos,MC_ABORTING_MODE);
   //			cout <<"vOrd" << v_order <<  "tOrd" << tor_order << " ** ";
   // For Abnormal termination
-  int axisStatus = axis.ReadStatus();
-  if(axisStatus & NC_AXIS_ERROR_STOP_MASK) {
-    axis.Reset();
-    axisStatus = axis.ReadStatus();
-    if(axisStatus & NC_AXIS_ERROR_STOP_MASK) {
-      cout << "Axis a1 in Error Stop. Aborting.";
-      exit(0);
-    }
-    target_pos_old = target_pos;
-  }
-  return;
+  this->check_status();
 }
 
 bool TorControls::init(const std::string& axisName, const MMC_CONNECT_HNDL& gConnHndl) {
@@ -115,24 +153,31 @@ bool TorControls::init(const std::string& axisName, const MMC_CONNECT_HNDL& gCon
 
   std::cout <<" initializing axis : " << axisName << std::endl;
   axis.InitAxisData(axisName.c_str(), gConnHndl);
-  LOGI << 7 << LEND;
-  axis.SetDefaultParams(stSingleDefault);
-  LOGI << 8 << LEND;
+  // axis.SetDefaultParams(stSingleDefault);
   axis.m_fAcceleration = 10000;
+
+  conn_handle = gConnHndl;
   return this->check_status();
 }
 
 
 bool TorControls::poweron() {
-  // mode change
+  std::cout <<"power on start......" << std::endl;
   int ret = axis.SetOpMode(OPM402_CYCLIC_SYNC_TORQUE_MODE);
   std::cout << "change is successed if ret == 0, and ret is ..." << ret << endl;
   if(ret != 0) {
     LOGE << "Set error" << LEND;
   } else {
-    std::cout << "Mode is 10 ? ... " << axis.GetOpMode() << endl;
+    int m = axis.GetOpMode();
+    if(m != 10) {
+      LOGE << "Axis operation Mode is not 10!! --> " << m << LEND;
+      LOGE << "power on exitting...." << LEND;
+      return false;
+    }
   }
+
   axis.PowerOn();
+  WaitFbDone(conn_handle, NC_AXIS_STAND_STILL_MASK, &axis);
   cout << "power on is completed" << endl;
   return this->check_status();
 }
@@ -143,8 +188,14 @@ bool TorControls::poweroff() {
   return this->check_status();
 }
 
-bool TorControls::check_status() {
+void TorControls::abort() {
+  std::cout <<" power off....." << std::endl;
   axis.PowerOff();
+  std::cout <<" abort called poweroff axis ....." << std::endl;
+}
+
+
+bool TorControls::check_status() {
   int Status = axis.ReadStatus();
   if(Status & NC_AXIS_ERROR_STOP_MASK) {
     axis.Reset();

@@ -25,15 +25,14 @@ int main(int argc, char* argv[]) {
     LOGE << "Usage: " << argv[0] << " <axis>" << LEND;
     return 1;
   }
-
-  LOGD << "maininit start" << LEND;
-  MainInit();
-  LOGD << "maininit end" << LEND;
   const char* axis_name = argv[1];
 
-  // default is 240, 1.85*pow(10,-5), 29.7 1/10 is good?
+  try{
+
+  MainInit();
+
   control_a1 = TorControls(166, 0.095 * std::pow(10, -5), 1.5, 2000);
-  std::cout << "torque control init  axis= " << axis_name << std::endl;
+  std::cout << "torque control init  axis= [" << axis_name << "]" << std::endl;
   bool ret = control_a1.init(axis_name, gConnHndl);
   if(!ret) {
     LOGE << "torque control init failed" << LEND;
@@ -46,6 +45,19 @@ int main(int argc, char* argv[]) {
     goto terminate;
   }
   MachineSequences();
+} catch (CMMCException excp) {
+  LOGE <<"CMMCException: " << excp.what() << LEND;
+  LOGE  <<"   : axisref = " << excp.axisRef() << LEND;
+  LOGE  <<"   : error = " << excp.error() << LEND;
+  LOGE  <<"   : status = " << excp.status() << LEND;
+  goto terminate;
+} catch (std::exception& e) {
+  LOGE << "std Exception: " << e.what() << LEND;
+  goto terminate;
+} catch (...) {
+  LOGE << "Unknown exception" << LEND;
+  goto terminate;
+}
 
 terminate:
   MainClose();
@@ -54,15 +66,15 @@ terminate:
 }
 
 void MainInit() {
-  LOGI << 1 << LEND;
   gConnHndl = cConn.ConnectIPCEx(0x7fffffff, (MMC_MB_CLBK)CallbackFunc);
   cHost.MbusStartServer(gConnHndl, 1);
+  CMMCPPGlobal::Instance()->SetThrowFlag(true,false); // 	Enable throw feature. @ axis
   CMMCPPGlobal::Instance()->RegisterRTE(OnRunTimeError);
   cConn.RegisterEventCallback(MMCPP_MODBUS_WRITE, (void*)ModbusWrite_Received);
   cConn.RegisterEventCallback(MMCPP_EMCY, (void*)Emergency_Received);
 
   memset(mbus_write_in.regArr, 0x0, 250);
-  return;
+  sleep(1);
 }
 
 void MainClose() {
@@ -90,13 +102,12 @@ void MachineSequencesInit() {
 
 
 void BackgroundProcesses() {
-  const auto time   = std::chrono::system_clock::now();
-  auto hour         = std::chrono::duration_cast<std::chrono::hours>(time.time_since_epoch()).count() % 24;
-  auto minute       = std::chrono::duration_cast<std::chrono::minutes>(time.time_since_epoch()).count() % 60;
-  auto seconds      = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count() % 60;
-  auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(time.time_since_epoch()).count() % 1000;
-  std::cout << "[time] " << hour << ":" << minute << ":" << seconds << ":" << milliseconds << std::endl;
-  return;
+  // const auto time   = std::chrono::system_clock::now();
+  // auto hour         = std::chrono::duration_cast<std::chrono::hours>(time.time_since_epoch()).count() % 24;
+  // auto minute       = std::chrono::duration_cast<std::chrono::minutes>(time.time_since_epoch()).count() % 60;
+  // auto seconds      = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count() % 60;
+  // auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(time.time_since_epoch()).count() % 1000;
+  // std::cout << "[time] " << hour << ":" << minute << ":" << seconds << ":" << milliseconds << std::endl;
 }
 
 void EnableMachineSequencesTimer(int TimerCycle) {
@@ -329,9 +340,9 @@ int CallbackFunc(unsigned char* recvBuffer, short recvBufferSize, void* lpsock) 
 }
 
 int OnRunTimeError(const char* msg, unsigned int uiConnHndl, unsigned short usAxisRef, short sErrorID, unsigned short usStatus) {
-  MMC_CloseConnection(uiConnHndl);
-  printf("MMCPPExitClbk: Run time Error in function %s, axis ref=%d, err=%d, status=%d, bye\n", msg, usAxisRef, sErrorID, usStatus);
-  exit(0);
+  LOGE << "MMCPPExitClbk: Run time Error in function " << msg << ", axis ref=" << usAxisRef << ", err=" << sErrorID << ", status=" << usStatus << ", bye\n" << LEND;
+  TerminateApplication(0);
+  // exit(0);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -347,11 +358,16 @@ int OnRunTimeError(const char* msg, unsigned int uiConnHndl, unsigned short usAx
 //	Modifications:	:	N/A
 //////////////////////////////////////////////////////////////////////
 void TerminateApplication(int iSigNum) {
-  printf("In Terminate Application ...\n");
+  if(giTerminate == 1){
+    LOGE << "TerminateApplicaiton関数が複数回呼ばれたのでexitします...." << LEND;
+    exit(0);
+  }
+  LOGW << "TerminateApplicaiton関数が呼ばれました...." << LEND;
   giTerminate = 1;
+  MainClose();
+  control_a1.abort();
   sigignore(SIGALRM);
   sleep(1);
-  return;
 }
 
 //

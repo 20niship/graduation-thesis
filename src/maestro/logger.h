@@ -10,7 +10,7 @@
   static constexpr auto type_d = "[ DBG ] ";
   static constexpr auto type_w = "[ WAR ] ";
   static constexpr auto type_e = "[ ERR ] ";
-#if 0
+#if 1
 #define LOGI std::cout << prefix_i << __FILE__<< " @ " << __LINE__ << type_i
 #define LOGD std::cout  << prefix_d <<  __FILE__<< " @ " << __LINE__<< type_d
 #define LOGW std::cout << prefix_w << __FILE__ << " @ " << __LINE__ << type_w

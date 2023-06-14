@@ -26,9 +26,9 @@ echo "ssh to %SERVER% and chmod +x %REMOTE_PATH%"
 ssh %USER%@%SERVER% chmod +x %REMOTE_PATH%
 echo "done!!"
 
-SET /P ANSWER="sshを実行します。よろしいですか (Y/N)？"
-if /i {%ANSWER%}=={y} (goto :yes)
-if /i {%ANSWER%}=={yes} (goto :yes)
-EXIT
-:yes
-    ssh %USER%@%SERVER%
+@REM SET /P ANSWER="sshを実行します。よろしいですか (Y/N)？"
+@REM if /i {%ANSWER%}=={y} (goto :yes)
+@REM if /i {%ANSWER%}=={yes} (goto :yes)
+@REM EXIT
+@REM :yes
+ssh %USER%@%SERVER%
