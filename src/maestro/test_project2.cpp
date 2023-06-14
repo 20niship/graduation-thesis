@@ -6,6 +6,7 @@
 #include <sys/time.h> // For time structure
 
 #include <chrono>
+#include <cmath>
 #include <ctime>
 #include <iomanip>
 #include <iostream>
@@ -31,10 +32,10 @@ int main(int argc, char* argv[]) {
   const char* axis_name = argv[1];
 
   // default is 240, 1.85*pow(10,-5), 29.7 1/10 is good?
-  control_a1 = TorControls(1, 1, 1, 6000);
-  std::cout <<"torque control init" << std::endl;
+  control_a1 = TorControls(166, 0.095 * std::pow(10, -5), 1.5, 2000);
+  std::cout << "torque control init" << std::endl;
   control_a1.init(axis_name, gConnHndl);
-  std::cout <<"torque control poweron" << std::endl;
+  std::cout << "torque control poweron" << std::endl;
   control_a1.poweron();
 
   LOGD << "MachineSequences start" << LEND;
