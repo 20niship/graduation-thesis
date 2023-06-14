@@ -12,8 +12,16 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # set(CMAKE_C_COMPILER  ${COMPILER_PATH}/arm-linux-gnueabihf-gcc) 
 
 SET(CMAKE_SYSTEM_NAME Linux)
-set(CMAKE_CXX_COMPILER /usr/bin/powerpc-linux-gnu-g++)
-set(CMAKE_C_COMPILER  /usr/bin/powerpc-linux-gnu-gcc)
+# check if windows
+if(WIN32)
+  set(CMAKE_C_COMPILER "C:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/bin/arm-linux-gnueabihf-gcc.exe")
+  set(CMAKE_CXX_COMPILER "C:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/bin/arm-linux-gnueabihf-g++.exe")
+else()
+  set(CMAKE_C_COMPILER /usr/bin/arm-linux-gnueabihf-gcc)
+  set(CMAKE_CXX_COMPILER /usr/bin/arm-linux-gnueabihf-g++)
+  # set(CMAKE_CXX_COMPILER /usr/bin/powerpc-linux-gnu-g++)
+  # set(CMAKE_C_COMPILER  /usr/bin/powerpc-linux-gnu-gcc)
+endif()
 
 # SET(CMAKE_C_COMPILER /usr/bin/arm-linux-gnueabihf-gcc)
 # SET(CMAKE_CXX_COMPILER /usr/bin/arm-linux-gnueabihf-g++)
@@ -28,7 +36,7 @@ set(CMAKE_EXE_LINKER_FLAGS  "-Wl,--hash-style=sysv" )
 project(ExampleProject)
 
 set(CMAKE_EXECUTABLE_SUFFIX ".pexe")
-find_package(Threads)
+# find_package(Threads REQUIRED)
 
 set(EXTRA_INCLUDES 
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/includes
@@ -69,7 +77,7 @@ file(GLOB LIB_SOURCES
 )
 target_link_libraries(example 
   ${LIB_SOURCES}
-  Threads::Threads
+  # Threads::Threads
 )
 
 
