@@ -1,55 +1,46 @@
-/*
- * TorControls.h
- *
- *  Created on: 2019/08/08
- *      Author: takayuki-kanai
- */
-
 #pragma once
 
-#include "mmc_definitions.h"
 #include "mmcpplib.h"
+#include <MMC_definitions.h>
 
 class TorControls {
 public:
-	TorControls(double kp_pos, double kp_vel, double ki_vel, double curLimHard=5500);
-	virtual ~TorControls();
-	void set_CommandFromHost(short *reg, int torlimMbusId);
-	void p_pi_controlAxis(CMMCSingleAxis single_axis);
-	void reset_integral();
-	void set_GainAgan(short *reg, int gainStartId_mbus, bool times10000=true);
-	double get_KP_pos();
-	double get_KP_vel();
-	double get_v_order();
-	double get_tor_order();
+  TorControls() = default;
+  TorControls(double kp_pos, double kp_vel, double ki_vel, double curLimHard = 5500);
+  ~TorControls() = default;
+  void set_CommandFromHost(short* reg, int torlimMbusId);
+  void p_pi_controlAxis();
+  void reset_integral();
+  void set_GainAgan(short* reg, int gainStartId_mbus, bool times10000 = true);
+  int get_currentLim() const { return std::max(torLim_mA, 0); }
+  double get_KP_pos() const { return kp; }
+  double get_KP_vel() const { return kd; }
+  double get_tor_order() const { return tor_order; }
+  void set_target(double p) { target_pos = p; }
+  void set_limit(double l) { torLim_mA = l; }
+
+  void init(const std::string& axisName, const MMC_CONNECT_HNDL& gConnHndl);
+  void poweron();
+  void poweroff();
+  int check_status();
+
+  double get_pos() const { return now_pos; }
+  double get_vel() const { return now_vel; }
 
 private:
-	bool torControlInitializer;
-	double KP_position;			// [/s]
-	double KP_velocity;			// [mA/(cnt/s)]
-	double KI_velocity;			// [/ms]
-	double CurLimHardware;		// [mA]
-	int target_pos;
-	int torLim_mA;
-	int target_pos_old;
-	int torLim_mA_old;
-	//For temporals to use torControl
-	double now_pos, now_vel;
-	double pos_err, v_order,tor_order, tor_order_integral;
-	bool torLimFlag;
-	int torControlState;
-	// User utils
-	double sign(double A);
-	int read_32bit_from_mbus16bit(short *reg, int startRef);
-	int get_currentLim();
-	bool reset_gainFlag;
-};
+  CMMCSingleAxis axis;
 
-enum eStateTorqueControl	// TODO: Change names of sub-state machines.
-{
-	eSetVelocityOrder 	=	1,
-	eSetTorqueOrder 	=	2,
-	eCheckLimit			=	3,
-	eMoveTorque		 	=	4,
-	eErrorCheckAndReset	=	5,
+  double kp; // [/s]
+  double kd; // [mA/(cnt/s)]
+  double ki; // [/ms]
+  int target_pos;
+  int torLim_mA = 6000;
+  int target_pos_old;
+
+  // For temporals to use torControl
+  double now_pos, now_vel;
+  double tor_order, tor_order_integral;
+  bool torLimFlag;
+  // User utils
+  int read_32bit_from_mbus16bit(short* reg, int startRef);
 };
