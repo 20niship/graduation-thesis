@@ -19,10 +19,10 @@ public:
   void set_target(double p) { target_pos = p; }
   void set_limit(double l) { torLim_mA = l; }
 
-  void init(const std::string& axisName, const MMC_CONNECT_HNDL& gConnHndl);
-  void poweron();
-  void poweroff();
-  int check_status();
+  bool init(const std::string& axisName, const MMC_CONNECT_HNDL& gConnHndl);
+  bool poweron();
+  bool poweroff();
+  bool check_status();
 
   double get_pos() const { return now_pos; }
   double get_vel() const { return now_vel; }

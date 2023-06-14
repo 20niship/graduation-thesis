@@ -11,6 +11,12 @@ set USER="user"
 set PASS="user"
 set REMOTE_PATH="/mnt/jffs/usr/%NAME%"
 
+REM "if file not exists show error"
+if not exist %LOCAL_PATH% (
+    echo "file not exists!!"
+    EXIT
+)
+
 echo "sending file to %SERVER%  :  ...-> %REMOTE_PATH%"
 scp %LOCAL_PATH% %USER%@%SERVER%:%REMOTE_PATH%
 echo "upload done!!"

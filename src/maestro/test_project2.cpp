@@ -21,27 +21,33 @@ int mbus_timeout_counter;
 int fromTorqueControlMode;
 
 int main(int argc, char* argv[]) {
-  LOGD << "maininit start" << LEND;
-  MainInit();
-  LOGD << "maininit end" << LEND;
-
-  if(argc < 1) {
+  if(argc < 2) {
     LOGE << "Usage: " << argv[0] << " <axis>" << LEND;
     return 1;
   }
+
+  LOGD << "maininit start" << LEND;
+  MainInit();
+  LOGD << "maininit end" << LEND;
   const char* axis_name = argv[1];
 
   // default is 240, 1.85*pow(10,-5), 29.7 1/10 is good?
   control_a1 = TorControls(166, 0.095 * std::pow(10, -5), 1.5, 2000);
-  std::cout << "torque control init" << std::endl;
-  control_a1.init(axis_name, gConnHndl);
+  std::cout << "torque control init  axis= " << axis_name << std::endl;
+  bool ret = control_a1.init(axis_name, gConnHndl);
+  if(!ret) {
+    LOGE << "torque control init failed" << LEND;
+    goto terminate;
+  }
   std::cout << "torque control poweron" << std::endl;
-  control_a1.poweron();
-
-  LOGD << "MachineSequences start" << LEND;
+  ret = control_a1.poweron();
+  if(!ret) {
+    LOGE << "torque control poweron failed" << LEND;
+    goto terminate;
+  }
   MachineSequences();
-  LOGD << "MachineSequences end" << LEND;
 
+terminate:
   MainClose();
   LOGD << "MainClose end" << LEND;
   return 1;
@@ -50,25 +56,21 @@ int main(int argc, char* argv[]) {
 void MainInit() {
   LOGI << 1 << LEND;
   gConnHndl = cConn.ConnectIPCEx(0x7fffffff, (MMC_MB_CLBK)CallbackFunc);
-  LOGI << "hoge" << LEND;
   cHost.MbusStartServer(gConnHndl, 1);
-
-  LOGI << 15 << LEND;
   CMMCPPGlobal::Instance()->RegisterRTE(OnRunTimeError);
-  LOGI << 6 << LEND;
-
   cConn.RegisterEventCallback(MMCPP_MODBUS_WRITE, (void*)ModbusWrite_Received);
   cConn.RegisterEventCallback(MMCPP_EMCY, (void*)Emergency_Received);
 
   memset(mbus_write_in.regArr, 0x0, 250);
-  LOGI << 10 << LEND;
   return;
 }
 
 void MainClose() {
+  std::cout << "closing modbus server" << std::endl;
   cHost.MbusStopServer();
+  std::cout <<" closing motor connection" << std::endl;
   MMC_CloseConnection(gConnHndl);
-  return;
+  std::cout <<" exiting........" << std::endl;
 }
 
 void MachineSequences() {
@@ -79,17 +81,13 @@ void MachineSequences() {
     BackgroundProcesses();
     usleep(SLEEP_TIME);
   }
-  MachineSequencesClose();
-  return;
 }
 
 void MachineSequencesInit() {
   giTerminate  = FALSE;
   giReentrance = FALSE;
-  return;
 }
 
-void MachineSequencesClose() { return; }
 
 void BackgroundProcesses() {
   const auto time   = std::chrono::system_clock::now();
@@ -104,14 +102,24 @@ void BackgroundProcesses() {
 void EnableMachineSequencesTimer(int TimerCycle) {
   struct itimerval timer;
   struct sigaction stSigAction;
-
-  // Whenever a signal is caught, call TerminateApplication function
+#if 1
   stSigAction.sa_handler = TerminateApplication;
-
   sigaction(SIGINT, &stSigAction, NULL);
   sigaction(SIGTERM, &stSigAction, NULL);
   sigaction(SIGABRT, &stSigAction, NULL);
   sigaction(SIGQUIT, &stSigAction, NULL);
+  sigaction(SIGKILL, &stSigAction, NULL);
+#else
+  std::signal(SIGINT, MainClose);
+  std::signal(SIGTERM, MainClose);
+  std::signal(SIGABRT, MainClose);
+  std::signal(SIGQUIT, MainClose);
+  std::signal(SIGALRM, MainClose);
+  std::signal(SIGKILL, MainClose);
+  std::signal(SIGSTOP, MainClose);
+  std::signal(SIGTSTP, MainClose);
+#endif
+
   //
   //	Enable the main machine sequences timer function
   //
@@ -142,7 +150,7 @@ void EnableMachineSequencesTimer(int TimerCycle) {
 ============================================================================
 */
 void MachineSequencesTimer(int iSig) {
-  if(giTerminate == TRUE) return; //	Avoid reentrance of this time function
+  if(giTerminate) return; //	Avoid reentrance of this time function
   if(giReentrance) {
     printf("Reentrancy!\n");
     return;

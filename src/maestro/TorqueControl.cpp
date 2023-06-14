@@ -81,7 +81,8 @@ void TorControls::p_pi_controlAxis() {
 
   tor_order = std::min(std::max(tor_order, -lim_mA), lim_mA);
 
-  axis.MoveTorque(tor_order, 5.0 * pow(10, 6), 1.0 * pow(10, 8), MC_ABORTING_MODE);
+  // axis.MoveTorque(tor_order, 5.0 * pow(10, 6), 1.0 * pow(10, 8), MC_ABORTING_MODE);
+
   //			single_axis.MoveAbsoluteRepetitive(target_pos,MC_ABORTING_MODE);
   //			cout <<"vOrd" << v_order <<  "tOrd" << tor_order << " ** ";
   // For Abnormal termination
@@ -98,7 +99,7 @@ void TorControls::p_pi_controlAxis() {
   return;
 }
 
-void TorControls::init(const std::string& axisName, const MMC_CONNECT_HNDL& gConnHndl) {
+bool TorControls::init(const std::string& axisName, const MMC_CONNECT_HNDL& gConnHndl) {
   MMC_MOTIONPARAMS_SINGLE stSingleDefault; // Single axis default data
   // Initialize default parameters. This is not a must. Each parameter may be initialized individually.
   stSingleDefault.fEndVelocity  = 0;
@@ -118,42 +119,31 @@ void TorControls::init(const std::string& axisName, const MMC_CONNECT_HNDL& gCon
   axis.SetDefaultParams(stSingleDefault);
   LOGI << 8 << LEND;
   axis.m_fAcceleration = 10000;
-  this->check_status();
+  return this->check_status();
 }
 
 
-void TorControls::poweron() {
+bool TorControls::poweron() {
   // mode change
   int ret = axis.SetOpMode(OPM402_CYCLIC_SYNC_TORQUE_MODE);
   std::cout << "change is successed if ret == 0, and ret is ..." << ret << endl;
   if(ret != 0) {
-    std::cerr << "Set error" << endl;
+    LOGE << "Set error" << LEND;
   } else {
     std::cout << "Mode is 10 ? ... " << axis.GetOpMode() << endl;
   }
-  // Axis idling state
   axis.PowerOn();
-  this->check_status();
   cout << "power on is completed" << endl;
-  return;
+  return this->check_status();
 }
 
-void TorControls::poweroff() {
+bool TorControls::poweroff() {
   axis.PowerOff();
-  int Status = axis.ReadStatus();
-  if(Status & NC_AXIS_ERROR_STOP_MASK) {
-    axis.Reset();
-    Status = axis.ReadStatus();
-    if(Status & NC_AXIS_ERROR_STOP_MASK) {
-      LOGE << "Axis is in Error Stop. Aborting." << LEND;
-      exit(0);
-    }
-    std::cout << "power OFF" << std::endl;
-  }
-  return;
+  std::cout <<" power OFF" << std::endl;
+  return this->check_status();
 }
 
-int TorControls::check_status() {
+bool TorControls::check_status() {
   axis.PowerOff();
   int Status = axis.ReadStatus();
   if(Status & NC_AXIS_ERROR_STOP_MASK) {
@@ -163,9 +153,9 @@ int TorControls::check_status() {
     Status = axis.ReadStatus();
     if(Status & NC_AXIS_ERROR_STOP_MASK) {
       LOGE << "Axis is in Error Stop. Aborting." << LEND;
-      exit(0);
+      return false;
     }
     std::cout << "power OFF" << std::endl;
   }
-  return Status;
+  return true;
 }

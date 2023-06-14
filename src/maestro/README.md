@@ -48,6 +48,7 @@ test_project.pexe: ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), dynam
 
 
 ## connect
-`ssh user@192.168.2.110` パスワードは`user`
-
+- `ssh user@192.168.2.110` パスワードは`user`
+- 以前にMaestroで接続していて、Hostkeyが違うよって言われるときは
+  - `ssh-keygen -R 192.168.2.110`
 
