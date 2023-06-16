@@ -14,14 +14,13 @@
 #include <iomanip>
 #include <iostream>
 
-#include "logger.h"
+#include "src/logger.h"
 #include <semaphore.h>
 
 #define FIRST_SUB_STATE 1
-enum eMainStateMachines // TODO: Change names of state machines to reflect dedicated project
-{
+enum eMainStateMachines{
   eIDLE = 0,
-  eSM1  = 1, // Main state machine #1
+  eSM1  = 1,
 };
 
 int giPrevState1;
@@ -102,8 +101,7 @@ void update() {
         std::cout << "waiting for host connection......." << std::endl;
         counter2 += 1;
         if(counter2 > MBUS_CONNCETION_TIMEOUT_LIM) {
-          LOGW << "hostPCが認識できなかったので次に進みます" << LEND;
-          // Treat Connection false as " hostPC doesn't send signals "
+          LOGW << "no host pc found! continue next...." << LEND;
           control_a1.reset_integral();
           giState1 = eSM1;
           break;
