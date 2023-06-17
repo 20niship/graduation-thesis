@@ -27,37 +27,36 @@ int main(int argc, char* argv[]) {
   }
   const char* axis_name = argv[1];
 
-  try{
+  try {
+    MainInit();
 
-  MainInit();
-
-  control_a1 = TorControls(166, 0.095 * std::pow(10, -5), 1.5, 2000);
-  std::cout << "torque control init  axis= [" << axis_name << "]" << std::endl;
-  bool ret = control_a1.init(axis_name, gConnHndl);
-  if(!ret) {
-    LOGE << "torque control init failed" << LEND;
+    control_a1 = TorControls(166, 0.095 * std::pow(10, -5), 1.5, 2000);
+    std::cout << "torque control init  axis= [" << axis_name << "]" << std::endl;
+    bool ret = control_a1.init(axis_name, gConnHndl);
+    if(!ret) {
+      LOGE << "torque control init failed" << LEND;
+      goto terminate;
+    }
+    std::cout << "torque control poweron" << std::endl;
+    ret = control_a1.poweron();
+    if(!ret) {
+      LOGE << "torque control poweron failed" << LEND;
+      goto terminate;
+    }
+    MachineSequences();
+  } catch(CMMCException excp) {
+    LOGE << "CMMCException: " << excp.what() << LEND;
+    LOGE << "   : axisref = " << excp.axisRef() << LEND;
+    LOGE << "   : error = " << excp.error() << LEND;
+    LOGE << "   : status = " << excp.status() << LEND;
+    goto terminate;
+  } catch(std::exception& e) {
+    LOGE << "std Exception: " << e.what() << LEND;
+    goto terminate;
+  } catch(...) {
+    LOGE << "Unknown exception" << LEND;
     goto terminate;
   }
-  std::cout << "torque control poweron" << std::endl;
-  ret = control_a1.poweron();
-  if(!ret) {
-    LOGE << "torque control poweron failed" << LEND;
-    goto terminate;
-  }
-  MachineSequences();
-} catch (CMMCException excp) {
-  LOGE <<"CMMCException: " << excp.what() << LEND;
-  LOGE  <<"   : axisref = " << excp.axisRef() << LEND;
-  LOGE  <<"   : error = " << excp.error() << LEND;
-  LOGE  <<"   : status = " << excp.status() << LEND;
-  goto terminate;
-} catch (std::exception& e) {
-  LOGE << "std Exception: " << e.what() << LEND;
-  goto terminate;
-} catch (...) {
-  LOGE << "Unknown exception" << LEND;
-  goto terminate;
-}
 
 terminate:
   MainClose();
@@ -68,7 +67,7 @@ terminate:
 void MainInit() {
   gConnHndl = cConn.ConnectIPCEx(0x7fffffff, (MMC_MB_CLBK)CallbackFunc);
   cHost.MbusStartServer(gConnHndl, 1);
-  CMMCPPGlobal::Instance()->SetThrowFlag(true,false); // 	Enable throw feature. @ axis
+  CMMCPPGlobal::Instance()->SetThrowFlag(true, false); // 	Enable throw feature. @ axis
   CMMCPPGlobal::Instance()->RegisterRTE(OnRunTimeError);
   cConn.RegisterEventCallback(MMCPP_MODBUS_WRITE, (void*)ModbusWrite_Received);
   cConn.RegisterEventCallback(MMCPP_EMCY, (void*)Emergency_Received);
@@ -80,9 +79,9 @@ void MainInit() {
 void MainClose() {
   std::cout << "closing modbus server" << std::endl;
   cHost.MbusStopServer();
-  std::cout <<" closing motor connection" << std::endl;
+  std::cout << " closing motor connection" << std::endl;
   MMC_CloseConnection(gConnHndl);
-  std::cout <<" exiting........" << std::endl;
+  std::cout << " exiting........" << std::endl;
 }
 
 void MachineSequences() {
@@ -143,23 +142,8 @@ void EnableMachineSequencesTimer(int TimerCycle) {
   //	signal(SIGALRM, MachineSequencesTimer); 		// every TIMER_CYCLE ms SIGALRM is received which calls MachineSequencesTimer()
   return;
 }
-/*
-============================================================================
- Function:				MachineSequencesTimer()
- Input arguments:		None.
- Output arguments: 		None.
- Returned value:		None.
- Version:				Version 1.00
- Updated:				10/03/2011
- Modifications:			N/A
 
- Description:
 
- A timer function that is called by the OS every TIMER_CYCLE ms.
- It executes the machine sequences states machines and actully controls
- the sequences and behavior of the machine.
-============================================================================
-*/
 void MachineSequencesTimer(int iSig) {
   if(giTerminate) return; //	Avoid reentrance of this time function
   if(giReentrance) {
@@ -240,15 +224,6 @@ void MachineSequencesTimer(int iSig) {
 */
 void ReadAllInputData() {
   MMC_MODBUSREADHOLDINGREGISTERSTABLE_OUT mbus_read_out;
-  //
-  //	Here should come the code to read all required input data, for instance:
-  //
-  //	giXInMotion = ...
-  //	giYInMotion = ...
-  //
-  // The data read here may arrive from different sources:
-  // 	- Host Communication (Modbus, Ethernet-IP. This can be read on a cyclic basis, or from a callback.
-  //	- GMAS Firmware. Such as actual positions, torque, velocities.
 
   // TODO: Change the number of registers to read.
   cHost.MbusReadHoldingRegisterTable(MODBUS_READ_OUTPUTS_INDEX, MODBUS_READ_CNT, mbus_read_out);
@@ -258,31 +233,9 @@ void ReadAllInputData() {
   /* giXStatus = a1.ReadStatus(); */
   /* giYStatus = a2.ReadStatus(); */
   control_a1.check_status();
-
   return;
 }
-/*
-============================================================================
- Function:				WriteAllOutputData()
- Input arguments:		None.
- Output arguments: 		None.
- Returned value:		None.
- Version:				Version 1.00
- Updated:				10/03/2011
- Modifications:			N/A
 
- Description:
-
- Write all the data, generated by the states machines code, to the "external
- world".
-
- This is done here (and not inside the states machines code) to ensure that
- all data is updated simultaneously and in a synchronous way.
-
- The states machines code write the data into "mirror" variables, that are here
- copied or sent to the "external world" (Host via MODBUS, GMAS core firmware, etc.)
-  ============================================================================
-*/
 void WriteAllOutputData() {
   //
   //	Here should come the code to write/send all ouput data
@@ -296,18 +249,7 @@ void WriteAllOutputData() {
   return;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//	Function name	:	void callback function																		//
-//	Created			:	Version 1.00																				//
-//	Updated			:	3/12/2010																					//
-//	Modifications	:	N/A																							//
-//	Purpose			:	interupt function 																			//
-//																													//
-//	Input			:	N/A																							//
-//	Output			:	N/A																							//
-//	Return Value	:	int																							//
-//	Modifications:	:	N/A																							//
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 int CallbackFunc(unsigned char* recvBuffer, short recvBufferSize, void* lpsock) {
   std::cout << "callback called" << std::endl;
   // Which function ID was received ...
@@ -343,22 +285,11 @@ int OnRunTimeError(const char* msg, unsigned int uiConnHndl, unsigned short usAx
   LOGE << "MMCPPExitClbk: Run time Error in function " << msg << ", axis ref=" << usAxisRef << ", err=" << sErrorID << ", status=" << usStatus << ", bye\n" << LEND;
   TerminateApplication(0);
   // exit(0);
+  return 0;
 }
 
-///////////////////////////////////////////////////////////////////////
-//	Function name	:	void terminate_application(int iSigNum)
-//	Created			:	Version 1.00
-//	Updated			:	20/05/2010
-//	Modifications	:	N/A
-//	Purpose			:	Called in case application is terminated, stop modbus, engines, and power off engines
-//	Input			:	int iSigNum - Signal Num.
-//	Output			:	N/A
-//	Return Value	:	void
-//
-//	Modifications:	:	N/A
-//////////////////////////////////////////////////////////////////////
 void TerminateApplication(int iSigNum) {
-  if(giTerminate == 1){
+  if(giTerminate == 1) {
     LOGE << "TerminateApplicaiton関数が複数回呼ばれたのでexitします...." << LEND;
     exit(0);
   }
@@ -370,13 +301,9 @@ void TerminateApplication(int iSigNum) {
   sleep(1);
 }
 
-//
-// Callback Function once a Modbus message is received.
 void ModbusWrite_Received() {
   MBUS_PACKET_FLAG = TRUE;
   printf("Modbus Write Received\n");
 }
 
-//
-// Callback Function once an Emergency is received.
 void Emergency_Received(unsigned short usAxisRef, short sEmcyCode) { printf("Emergency Message Received on Axis %d. Code: %x\n", usAxisRef, sEmcyCode); }

@@ -7,33 +7,29 @@
 #ifdef WIN32
 #define WAIT_SLEEP_MILLI(WAIT_MILLI_SEC) Sleep(WAIT_MILLI_SEC);
 #else
-#define WAIT_SLEEP_MILLI(WAIT_MILLI_SEC) usleep(WAIT_MILLI_SEC*1000);
+#define WAIT_SLEEP_MILLI(WAIT_MILLI_SEC) usleep(WAIT_MILLI_SEC * 1000);
 #endif
 
-static int WaitFbDone(MMC_CONNECT_HNDL ComHndl, unsigned int break_state, CMMCSingleAxis * sng_axis)
-{
-int end_of = 0;
-int iCount = 0;
-unsigned int ulState;
-while( ! end_of)
-{
-iCount ++;
-end_of = 1;
-/* Read Axis Status command server for specific Axis */
-ulState = sng_axis->ReadStatus();
-if (!(ulState & break_state))
-{
-end_of = 0;
-WAIT_SLEEP_MILLI(20);
-}
-}
-if(0)
-{
-MMC_SHOWNODESTAT_IN showin;
-MMC_SHOWNODESTAT_OUT showout;
-MMC_ShowNodeStatCmd(ComHndl,sng_axis->GetRef(),&showin,&showout);
-}
-return 0;
+static int WaitFbDone(MMC_CONNECT_HNDL ComHndl, unsigned int break_state, CMMCSingleAxis* sng_axis) {
+  int end_of = 0;
+  int iCount = 0;
+  unsigned int ulState;
+  while(!end_of) {
+    iCount++;
+    end_of = 1;
+    /* Read Axis Status command server for specific Axis */
+    ulState = sng_axis->ReadStatus();
+    if(!(ulState & break_state)) {
+      end_of = 0;
+      WAIT_SLEEP_MILLI(20);
+    }
+  }
+  if(0) {
+    MMC_SHOWNODESTAT_IN showin;
+    MMC_SHOWNODESTAT_OUT showout;
+    MMC_ShowNodeStatCmd(ComHndl, sng_axis->GetRef(), &showin, &showout);
+  }
+  return 0;
 }
 
 TorControls::TorControls(double kp_pos, double kp_vel, double ki_vel, double curLimHard) {
@@ -96,7 +92,7 @@ void TorControls::reset_integral() {
 }
 
 void TorControls::p_pi_controlAxis() {
-  #if 0
+#if 0
 MC_BUFFERED_MODE_ENUM eBufferMode;
 OPM402 drvMode;
 double dbDistance;
@@ -151,7 +147,7 @@ bool TorControls::init(const std::string& axisName, const MMC_CONNECT_HNDL& gCon
   stSingleDefault.eBufferMode   = MC_BUFFERED_MODE;
   stSingleDefault.ucExecute     = 1;
 
-  std::cout <<" initializing axis : " << axisName << std::endl;
+  std::cout << " initializing axis : " << axisName << std::endl;
   axis.InitAxisData(axisName.c_str(), gConnHndl);
   // axis.SetDefaultParams(stSingleDefault);
   axis.m_fAcceleration = 10000;
@@ -162,7 +158,7 @@ bool TorControls::init(const std::string& axisName, const MMC_CONNECT_HNDL& gCon
 
 
 bool TorControls::poweron() {
-  std::cout <<"power on start......" << std::endl;
+  std::cout << "power on start......" << std::endl;
   int ret = axis.SetOpMode(OPM402_CYCLIC_SYNC_TORQUE_MODE);
   std::cout << "change is successed if ret == 0, and ret is ..." << ret << endl;
   if(ret != 0) {
@@ -184,14 +180,14 @@ bool TorControls::poweron() {
 
 bool TorControls::poweroff() {
   axis.PowerOff();
-  std::cout <<" power OFF" << std::endl;
+  std::cout << " power OFF" << std::endl;
   return this->check_status();
 }
 
 void TorControls::abort() {
-  std::cout <<" power off....." << std::endl;
+  std::cout << " power off....." << std::endl;
   axis.PowerOff();
-  std::cout <<" abort called poweroff axis ....." << std::endl;
+  std::cout << " abort called poweroff axis ....." << std::endl;
 }
 
 
@@ -199,7 +195,7 @@ bool TorControls::check_status() {
   int Status = axis.ReadStatus();
   if(Status & NC_AXIS_ERROR_STOP_MASK) {
     axis.Reset();
-    LOGE <<" AXIS RESET CALLED!! sleeping....." << LEND;
+    LOGE << " AXIS RESET CALLED!! sleeping....." << LEND;
     sleep(1);
     Status = axis.ReadStatus();
     if(Status & NC_AXIS_ERROR_STOP_MASK) {

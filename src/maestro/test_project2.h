@@ -39,22 +39,7 @@ void TerminateApplication(int iSigNum);
 void Emergency_Received(unsigned short usAxisRef, short sEmcyCode);
 void ModbusWrite_Received();
 int CallbackFunc(unsigned char* recvBuffer, short recvBufferSize, void* lpsock);
-/*
-============================================================================
- States functions
-============================================================================
-*/
-void StateFunction_1(); // TODO: Change the name of these functions accordingly
-void SubState1_1Function();
-void SubState1_2Function();
-void SubState1_3Function();
-void SubState1_4Function();
 
-void StateFunction_2(); // TODO: Change the name of these functions accordingly
-void SubState2_1Function();
-void SubState2_2Function();
-
-void StateXYDefaultFunction();
 /*
 ============================================================================
  General constants
@@ -88,30 +73,11 @@ enum eMainStateMachines // TODO: Change names of state machines to reflect dedic
   eSM1  = 1, // Main state machine #1
 };
 
-enum eSubStateMachine_1 // TODO: Change names of sub-state machines.
-{
-  eSubState_SM1_1 = 1,
-  eSubState_SM1_2 = 2,
-  eSubState_SM1_3 = 3,
-  eSubState_SM1_4 = 4,
-};
-enum eSubStateMachine_2 // TODO: Change names of sub-state machines.
-{
-  eSubState_SM2_1 = 1,
-  eSubState_SM2_2 = 2,
-  eSubState_SM2_3 = 3,
-  eSubState_SM2_4 = 4,
-};
-
-/*
-============================================================================
- Application global variables
-============================================================================
-*/
 int giTerminate;  // Flag to request program termination
 int giReentrance; // Used to detect reentrancy to the main timer function
 int giPrevState1;
 int giState1;
+
 /*
 ============================================================================
  Global structures for Elmo's Function Blocks
