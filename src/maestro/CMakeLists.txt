@@ -42,7 +42,7 @@ set(EXTRA_INCLUDES
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/includes
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/includes/CPP
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/includes/EMBL
-  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 include_directories(${EXTRA_INCLUDES})
@@ -58,27 +58,33 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -Wall -fmessage-length=0 -std=c++11 -g -Wno-deprecated -Wno-write-strings")
 
-set(SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_project2.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/TorqueControl.cpp
-)
-
-add_executable(example ${SOURCES})
 link_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform
 )
 
-file(GLOB LIB_SOURCES 
+file(GLOB MAESTRO_LIBS 
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/*.a
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/*.lib
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform/*.a
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform/*.lib
 )
-target_link_libraries(example 
-  ${LIB_SOURCES}
-  Threads::Threads
+
+file(GLOB LIB_MAESTRO_SOURCES 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 )
 
+add_library(my-maestro ${LIB_MAESTRO_SOURCES})
+target_link_libraries(my-maestro Threads::Threads ${MAESTRO_LIBS})
 
+# foreach cpp files
+file(GLOB SOURCES 
+  ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
+)
+
+foreach(sourcefile ${SOURCES})
+  get_filename_component(name ${sourcefile} NAME)
+  add_executable(${name} ${sourcefile})
+  target_link_libraries(${name} my-maestro Threads::Threads)
+endforeach()
 
