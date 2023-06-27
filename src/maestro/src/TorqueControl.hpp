@@ -19,10 +19,11 @@ public:
   void set_target(double p) { target_pos = p; }
   void set_limit(double l) { torLim_mA = l; }
 
-  void init(const std::string& axisName, const MMC_CONNECT_HNDL& gConnHndl);
-  void poweron();
-  void poweroff();
-  int check_status();
+  bool init(const std::string& axisName, const MMC_CONNECT_HNDL& gConnHndl);
+  bool poweron();
+  void abort();
+  bool poweroff();
+  bool check_status();
 
   double get_pos() const { return now_pos; }
   double get_vel() const { return now_vel; }
@@ -36,6 +37,8 @@ private:
   int target_pos;
   int torLim_mA = 6000;
   int target_pos_old;
+
+  MMC_CONNECT_HNDL conn_handle;
 
   // For temporals to use torControl
   double now_pos, now_vel;

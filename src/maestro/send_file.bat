@@ -11,6 +11,12 @@ set USER="user"
 set PASS="user"
 set REMOTE_PATH="/mnt/jffs/usr/%NAME%"
 
+REM "if file not exists show error"
+if not exist %LOCAL_PATH% (
+    echo "file not exists!!"
+    EXIT
+)
+
 echo "sending file to %SERVER%  :  ...-> %REMOTE_PATH%"
 scp %LOCAL_PATH% %USER%@%SERVER%:%REMOTE_PATH%
 echo "upload done!!"
@@ -20,9 +26,9 @@ echo "ssh to %SERVER% and chmod +x %REMOTE_PATH%"
 ssh %USER%@%SERVER% chmod +x %REMOTE_PATH%
 echo "done!!"
 
-SET /P ANSWER="sshを実行します。よろしいですか (Y/N)？"
-if /i {%ANSWER%}=={y} (goto :yes)
-if /i {%ANSWER%}=={yes} (goto :yes)
-EXIT
-:yes
-    ssh %USER%@%SERVER%
+@REM SET /P ANSWER="sshを実行します。よろしいですか (Y/N)？"
+@REM if /i {%ANSWER%}=={y} (goto :yes)
+@REM if /i {%ANSWER%}=={yes} (goto :yes)
+@REM EXIT
+@REM :yes
+ssh %USER%@%SERVER%
