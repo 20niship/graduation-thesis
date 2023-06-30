@@ -52,12 +52,7 @@
 
 従来のロボット制御技術は、特定の要件に合わせたプログラムやシステムによって制御され、柔軟性や適応性に課題があった. しかし、機械学習アルゴリズムの急速な発展により、ロボット制御において環境を柔軟に理解し、より適切な行動を選択することが可能となり、様々なタスクの解決に驚くべき成果が得られている. 
 
-本稿では、ロボティクスの制御技術に使用される機械学習アルゴリズムに関する包括的な調査を提供する. ロボットは、知覚情報に基づいて適切な行動を選択する必要がある. 機械学習アルゴリズムは、制御システムの設計や最適化において重要な役割を果たしている. また、モデル予測制御や最適制御においても、機械学習アルゴリズムが効果的に活用されている. 強化学習は、環境のモデルを使用したモデルベースの学習と、環境モデルを使用しないモデルフリーの学習に分けられるが、本稿ではモデルフリーのアプローチに焦点を当てる. 
-
-さらに、学習に関連する問題にも触れます. ロボットは、環境やタスクに適応するために学習する必要があります.  
-// TODO: 続き
-// TODO: まとめる
-
+本稿では、ロボティクスの制御技術に使用される機械学習アルゴリズムに関する包括的な調査を提供する. ロボットは、知覚情報に基づいて適切な行動を選択する必要がある. 機械学習アルゴリズムは、制御システムの設計や最適化において重要な役割を果たしている. また、モデル予測制御や最適制御においても、機械学習アルゴリズムが効果的に活用されている. 強化学習は、環境のモデルを使用したモデルベースの学習と、環境モデルを使用しないモデルフリーの学習に分けられるが、本稿ではモデルフリーのアプローチに焦点を当て、最後に、現在のロボティクス分野における強化学習の問題にも触れる. 
 
 % 引用例~\cite{Brooks1991:Intelligence_Without_Reason}です
 % chukan.bib ファイルを作っておきbibtexを使って引用して日本語もOK~\cite{book:Pfeifer:知の創成}.
@@ -168,6 +163,7 @@ Actor-Criticは、連続的な行動空間における方策最適化におい�
 \bibitem{dqn} Volodymyr Mnih, Koray Kavukcuoglu, David Silver, Alex Graves, Ioannis Antonoglou, Daan Wierstra, and Martin Riedmiller. "Playing Atari with Deep Reinforcement Learning". NeurIPS, 2013
 \bibitem{dqnrobot}Zhang F, Leitner J, Milford M, "Upcroft B and Corke P Towards vision-based deep reinforcement learning for robotic motion control" 2015
 \bibitem{rainbow} Matteo Hessel, Joseph Modayil, Hado van Hasselt, Tom Schaul, Georg Ostrovski, Will Dabney, Dan Horgan, Bilal Piot, Mohammad Azar, and David Silver. "Rainbow: Combining Improvements in Deep Reinforcement Learning". AAAI, 2018
+\bibitem{agent57} Adrià Puigdomènech Badia, Bilal Piot, Steven Kapturowski, Pablo Sprechmann, Alex Vitvitskyi, Daniel Guo, and Charles Blundell. "Agent57: Outperforming the Atari Human Benchmark". ICML, 2020. [link]
 
 \bibitem{r2d2} Steven Kapturowski, Georg Ostrovski, John Quan, Remi Munos, and Will Dabney. "Recurrent Experience Replay in Distributed Reinforcement Learning". ICLR, 2019.
 \bibitem{r2d3} Tom Le Paine, Caglar Gulcehre, Bobak Shahriari, Misha Denil, Matt Hoffman, Hubert Soyer, Richard Tanburn, Steven Kapturowski, Neil Rabinowitz, Duncan Williams, Gabriel Barth-Maron, Ziyu Wang, Nando de Freitas, and Worlds Team. "Making Efficient Use of Demonstrations to Solve Hard Exploration Problems". ICLR, 2020
