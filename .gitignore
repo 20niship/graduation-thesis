@@ -36,3 +36,6 @@
 .cache/
 build
 PLATINUM_*/
+.vscode/
+GOLD_*/
+src/maestro/.settings/
