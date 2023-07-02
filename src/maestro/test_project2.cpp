@@ -32,7 +32,7 @@ TorControls control_a1;
 
 int main(int argc, char* argv[]) {
   if(argc < 2) {
-    LOGE << "Usage: " << argv[0] << " <axis>" << LEND;
+    spdlog::error("usage {} <axis> ", argv[0]);
     return 1;
   }
   const char* axis_name = argv[1];

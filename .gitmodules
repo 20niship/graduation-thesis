@@ -1,3 +1,6 @@
 [submodule "src/maestro/GMAS-elmo-lib"]
 	path = src/maestro/GMAS-elmo-lib
 	url = git@github.com:20niship/GMAS-elmo-lib.git
+[submodule "src/maestro/spdlog"]
+	path = src/maestro/spdlog
+	url = https://github.com/gabime/spdlog.git
