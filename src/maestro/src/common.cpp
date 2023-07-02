@@ -118,13 +118,20 @@ void WriteAllOutputData() {
 
 
 int CallbackFunc(unsigned char* recvBuffer, short recvBufferSize, void* lpsock) {
-  std::cout << "callback called" << std::endl;
+  LOGE << "CallbackFunc called" << LEND;
+  LOGE << "  recvBufferSize = " << recvBufferSize << LEND;
+  LOGE <<"   Event  type = " << (int)recvBuffer[1] << LEND;
+  for ( size_t i=0; i<recvBufferSize; i++)
+    LOGW << " buf[" << i << "] = " << (int)recvBuffer[i] << LEND;
+  LOGE << "  lpsok = "  << lpsock << LEND;
+  
   // Which function ID was received ...
   switch(recvBuffer[1]) {
     case EMCY_EVT:
       //
       // Please note - The emergency event was registered.
       // printf("Emergency Event received\r\n") ;
+      LOGE << "Emergency Event Recieeved" << LEND; break;
       break;
     case MOTIONENDED_EVT: printf("Motion Ended Event received\r\n"); break;
     case HBEAT_EVT: printf("H Beat Fail Event received\r\n"); break;
@@ -145,6 +152,7 @@ int CallbackFunc(unsigned char* recvBuffer, short recvBufferSize, void* lpsock) 
     default: std::cout << " hoghoge" << std::endl;
   }
   //
+  giTerminate = true;
   return 1;
 }
 

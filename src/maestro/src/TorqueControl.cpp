@@ -164,9 +164,11 @@ bool TorControls::poweron() {
   if(ret != 0) {
     LOGE << "Set error" << LEND;
   } else {
+    this->check_status();
     int m = axis.GetOpMode();
-    if(m != 10) {
+    if(m != OPM402_CYCLIC_SYNC_TORQUE_MODE) {
       LOGE << "Axis operation Mode is not 10!! --> " << m << LEND;
+      LOGE << " requested mode = " << OPM402_CYCLIC_SYNC_TORQUE_MODE << LEND;
       LOGE << "power on exitting...." << LEND;
       return false;
     }
