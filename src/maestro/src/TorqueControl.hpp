@@ -34,7 +34,7 @@ private:
   double kp; // [/s]
   double kd; // [mA/(cnt/s)]
   double ki; // [/ms]
-  int target_pos;
+  int target_pos = 0;
   int torLim_mA = 6000;
   int target_pos_old;
 

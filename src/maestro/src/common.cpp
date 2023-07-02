@@ -168,14 +168,13 @@ void TerminateApplication(int iSigNum) {
     LOGE << "TerminateApplicaiton関数が複数回呼ばれたのでexitします...." << LEND;
     exit(0);
   }
-  LOGW << "TerminateApplicaiton関数が呼ばれました...." << LEND;
-  MainClose();
-
-  terminateApp();
-
-  // control_a1.abort();
+  LOGW << "TerminateApplicaiton called exiting" << LEND;
   sigignore(SIGALRM);
-  sleep(1);
+  MainClose();
+  terminateApp();
+  // control_a1.abort();
+  exit(0);
+  giTerminate = true;
 }
 
 void ModbusWrite_Received() {
