@@ -49,19 +49,19 @@ set(EXTRA_INCLUDES
 
 include_directories(${EXTRA_INCLUDES})
 
-# -I"C:\cygwin\opt\crosstool\gcc-linaro-arm-linux-gnu\arm-linux-gnueabihf\libc\usr\include" 
-# -I"C:\cygwin\opt\crosstool\gcc-linaro-arm-linux-gnu\arm-linux-gnueabihf\include\c++\4.7.3"
+# -I"C:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/usr/include" 
+# -I"C:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/include/c++/4.7.3"
 # -I"C:/GMAS/includes"
 # -I"C:/GMAS/includes/cpp"
 # -I../ -I"C:/cygwin/tmp"
 # -I"C:/GMAS/includes/embl"
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -Wall -fmessage-length=0 -std=c++20 -g -Wno-deprecated -Wno-write-strings")
+set(CMAKE_CXX_FLAGS "-D_PLATINUM -O0 -c -Wall -fmessage-length=0 -std=c++11 -g -Wno-deprecated -Wno-write-strings")
 
-link_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib
-  ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform
-)
+# link_directories(
+#   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib
+#   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform
+# )
 
 file(GLOB MAESTRO_LIBS 
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/*.a
@@ -73,18 +73,36 @@ file(GLOB MAESTRO_LIBS
 file(GLOB LIB_MAESTRO_SOURCES 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 )
-
-add_library(my-maestro ${LIB_MAESTRO_SOURCES})
-target_link_libraries(my-maestro Threads::Threads ${MAESTRO_LIBS})
+  
+# add_library(my-maestro ${LIB_MAESTRO_SOURCES})
+# # target_link_libraries(my-maestro Threads::Threads ${MAESTRO_LIBS})
+# target_link_libraries(my-maestro Threads::Threads)
 
 # foreach cpp files
 file(GLOB SOURCES 
   ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
 )
 
+# link_directories(
+#   c:/GMAS/lib/platinum/
+#   c:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib/
+#   c:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib/arm-linux-gnueabi/
+#   c:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf/
+#   c:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/usr/lib/
+#   c:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/lib/
+# )
+set (CMAKE_EXE_LINKER_FLAGS "-Wl,-Bstatic -lMMC_APP_LIB -lMMCPPLIB -Wl,-Bdynamic -lpthread -lrt")
+
 foreach(sourcefile ${SOURCES})
   get_filename_component(name ${sourcefile} NAME)
-  add_executable(${name} ${sourcefile})
-  target_link_libraries(${name} my-maestro Threads::Threads)
+  add_executable(${name} ${sourcefile} ${LIB_MAESTRO_SOURCES})
+  # target_link_libraries(${name} Threads::Threads)
+  add_custom_command(TARGET ${name} POST_BUILD
+  COMMAND 
+    ${CMAKE_CXX_COMPILER} -otest_project2.pexe 
+    CMakeFiles/test_project2.cpp.dir/test_project2.cpp.o 
+    CMakeFiles/test_project2.cpp.dir/src/common.cpp.o 
+    CMakeFiles/test_project2.cpp.dir/src/TorqueControl.cpp.o 
+    -LC:/GMAS/lib/platinum/ -LC:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf -LC:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib -Lc:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib/arm-linux-gnueabi -Wl,-Bstatic -lMMC_APP_LIB -lMMCPPLIB -Wl,-Bdynamic -lpthread -lrt
+  )
 endforeach()
-
