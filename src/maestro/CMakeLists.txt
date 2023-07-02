@@ -43,6 +43,7 @@ set(EXTRA_INCLUDES
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/includes/CPP
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/includes/EMBL
   ${CMAKE_CURRENT_SOURCE_DIR}/src
+  ${CMAKE_CURRENT_SOURCE_DIR}/external/spdlog/include
 )
 
 include_directories(${EXTRA_INCLUDES})

@@ -46,33 +46,33 @@ int main(int argc, char* argv[]) {
     std::cout << "torque control init  axis= [" << axis_name << "]" << std::endl;
     bool ret = control_a1.init(axis_name, gConnHndl);
     if(!ret) {
-      LOGE << "torque control init failed" << LEND;
+      spdlog::error("torque control init failed");
       goto terminate;
     }
     std::cout << "torque control poweron" << std::endl;
     ret = control_a1.poweron();
     if(!ret) {
-      LOGE << "torque control poweron failed" << LEND;
+      spdlog::error("torque control poweron failed");
       goto terminate;
     }
     MachineSequences();
   } catch(CMMCException excp) {
-    LOGE << "CMMCException: " << excp.what() << LEND;
-    LOGE << "   : axisref = " << excp.axisRef() << LEND;
-    LOGE << "   : error = " << excp.error() << LEND;
-    LOGE << "   : status = " << excp.status() << LEND;
+    spdlog::error("CMMCException: {}", excp.what());
+    spdlog::error("   : axisref = {}", excp.axisRef());
+    spdlog::error("   : error = {}", excp.error());
+    spdlog::error("   : status = {}", excp.status());
     goto terminate;
   } catch(std::exception& e) {
-    LOGE << "std Exception: " << e.what() << LEND;
+    spdlog::error("std Exception: {}", e.what());
     goto terminate;
   } catch(...) {
-    LOGE << "Unknown exception" << LEND;
+    spdlog::error("unknown exception");
     goto terminate;
   }
 
 terminate:
   MainClose();
-  LOGD << "MainClose end" << LEND;
+  spdlog::info("MainClose end");
   return 1;
 }
 
@@ -99,7 +99,7 @@ void update() {
         std::cout << "waiting for host connection......." << std::endl;
         counter2 += 1;
         if(counter2 > MBUS_CONNCETION_TIMEOUT_LIM) {
-          LOGW << "no host pc found! continue next...." << LEND;
+          spdlog::warn("no host pc found! continue next....");
           control_a1.reset_integral();
           giState1 = eSM1;
           break;

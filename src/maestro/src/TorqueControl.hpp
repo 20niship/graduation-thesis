@@ -30,6 +30,7 @@ public:
 
 private:
   CMMCSingleAxis axis;
+  std::string m_axisName;
 
   double kp; // [/s]
   double kd; // [mA/(cnt/s)]

@@ -146,6 +146,7 @@ bool TorControls::init(const std::string& axisName, const MMC_CONNECT_HNDL& gCon
   stSingleDefault.eDirection    = MC_POSITIVE_DIRECTION;
   stSingleDefault.eBufferMode   = MC_BUFFERED_MODE;
   stSingleDefault.ucExecute     = 1;
+  m_axisName = axisName;
 
   std::cout << " initializing axis : " << axisName << std::endl;
   axis.InitAxisData(axisName.c_str(), gConnHndl);
@@ -160,36 +161,36 @@ bool TorControls::init(const std::string& axisName, const MMC_CONNECT_HNDL& gCon
 bool TorControls::poweron() {
   std::cout << "power on start......" << std::endl;
   int ret = axis.SetOpMode(OPM402_CYCLIC_SYNC_TORQUE_MODE);
-  std::cout << "change is successed if ret == 0, and ret is ..." << ret << endl;
   if(ret != 0) {
-    LOGE << "Set error" << LEND;
+    spdlog::error("set operation mode failed!!");
   } else {
     this->check_status();
     int m = axis.GetOpMode();
     if(m != OPM402_CYCLIC_SYNC_TORQUE_MODE) {
-      LOGE << "Axis operation Mode is not 10!! --> " << m << LEND;
-      LOGE << " requested mode = " << OPM402_CYCLIC_SYNC_TORQUE_MODE << LEND;
-      LOGE << "power on exitting...." << LEND;
+      spdlog::warn("Axis operation Mode is different!! ");
+      spdlog::warn(" current mode = {}", m);
+      spdlog::warn(" requested mode = {}", (int)OPM402_CYCLIC_SYNC_TORQUE_MODE);
+      spdlog::warn("power on exitting....");
       return false;
     }
   }
 
   axis.PowerOn();
   WaitFbDone(conn_handle, NC_AXIS_STAND_STILL_MASK, &axis);
-  cout << "power on is completed" << endl;
+  spdlog::info("power on is completed");
   return this->check_status();
 }
 
 bool TorControls::poweroff() {
   axis.PowerOff();
-  std::cout << " power OFF" << std::endl;
+  spdlog::info("power off axis={}", axis.GetName());
   return this->check_status();
 }
 
 void TorControls::abort() {
-  std::cout << " power off....." << std::endl;
+  spdlog::info("poweroff axis={}", m_axisName);
   axis.PowerOff();
-  std::cout << " abort called poweroff axis ....." << std::endl;
+  spdlog::info("abort axis={}", m_axisName);
 }
 
 
@@ -197,14 +198,13 @@ bool TorControls::check_status() {
   int Status = axis.ReadStatus();
   if(Status & NC_AXIS_ERROR_STOP_MASK) {
     axis.Reset();
-    LOGE << " AXIS RESET CALLED!! sleeping....." << LEND;
+    spdlog::error("axis reset called!! sleeping.....");
     sleep(1);
     Status = axis.ReadStatus();
     if(Status & NC_AXIS_ERROR_STOP_MASK) {
-      LOGE << "Axis is in Error Stop. Aborting." << LEND;
+      spdlog::error("Axis is in Error Stop. Aborting.");
       return false;
     }
-    std::cout << "power OFF" << std::endl;
   }
   return true;
 }

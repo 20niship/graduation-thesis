@@ -2,14 +2,14 @@
 
 #include <chrono>
 #include <ctime>
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
-#include <filesystem>
 #include <sstream>
 #include <string>
 
-#include "../external/spdlog/include/spdlog/sinks/basic_file_sink.h"    // File logger
-#include "../external/spdlog/include/spdlog/sinks/stdout_color_sinks.h" // Multi-colored console logger
+/* #include "../external/spdlog/include/spdlog/sinks/basic_file_sink.h" */
+/* #include "../external/spdlog/include/spdlog/sinks/stdout_color_sinks.h" */
 #include "../external/spdlog/include/spdlog/spdlog.h"
 
 
