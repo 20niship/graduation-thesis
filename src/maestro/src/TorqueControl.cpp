@@ -42,53 +42,16 @@ TorControls::TorControls(double kp_pos, double kp_vel, double ki_vel, double cur
   torLimFlag         = false;
 }
 
-
-void TorControls::set_GainAgan(short* reg, int gainStartId_mbus, bool times10000) {
-  // Define id
-  int kp_pos_MbusId = gainStartId_mbus;
-  int kp_vel_MbusId = gainStartId_mbus + 2;
-  int ki_vel_MbusId = gainStartId_mbus + 4;
-
-  // Read from mbus
-  double tmp_kp_pos = read_32bit_from_mbus16bit(reg, kp_pos_MbusId) * 1.0;
-  double tmp_kp_vel = read_32bit_from_mbus16bit(reg, kp_vel_MbusId) * 1.0;
-  double tmp_ki_vel = read_32bit_from_mbus16bit(reg, ki_vel_MbusId) * 1.0;
-
-  // if multiplied 10000
-  if(times10000) {
-    tmp_kp_pos = 1.0 * tmp_kp_pos / 100.;
-    tmp_kp_vel = 1.0 * tmp_kp_vel / 10000000.;
-    tmp_ki_vel = 1.0 * tmp_ki_vel / 100.;
-  }
-  kp = 1.0 * tmp_kp_pos / (2.0 * M_PI); // [rad/s] to [/s]
-  kd = 1.0 * tmp_kp_vel * 1000.;        // [A/(cnt/s)] to [mA/(cnt/s)]
-  ki = 1.0 * tmp_kp_vel / 1000.;        // [Hz] = [1/s] to [1/ms]
-}
-
-void TorControls::set_CommandFromHost(short* reg, int torlimMbusId) {
-  int posCmdMbusId = torlimMbusId + 2;
-  torLim_mA        = read_32bit_from_mbus16bit(reg, torlimMbusId);
-  target_pos       = read_32bit_from_mbus16bit(reg, posCmdMbusId);
-  if(target_pos == 0) {
-    // It means modbus connection is failed tamporary
-    target_pos = target_pos_old;
-  }
-  return;
-}
-
-
-int TorControls::read_32bit_from_mbus16bit(short* reg, int startRef) {
-  int hi  = (reg[startRef] << 16) >> 16;
-  int lo  = (reg[startRef + 1] << 16) >> 16;
-  int ret = hi * 32767 + lo;
-  return ret;
-}
-
 void TorControls::reset_integral() {
   cout << "RES";
   tor_order_integral = 0;
   tor_order          = 0;
   torLimFlag         = false;
+}
+
+void TorControls::sync_state() {
+  now_pos = axis.GetActualPosition();
+  now_vel = axis.GetActualVelocity();
 }
 
 void TorControls::p_pi_controlAxis() {
@@ -110,9 +73,8 @@ LOGD << "Done" << LEND;
 /* Retrive the keeping mode */
 return;
 #endif
+  this->update();
 
-  now_pos              = axis.GetActualPosition();
-  now_vel              = axis.GetActualVelocity();
   const double pos_err = (target_pos * 1.0 - now_pos);
   const double lim_mA  = get_currentLim();
 
@@ -146,7 +108,7 @@ bool TorControls::init(const std::string& axisName, const MMC_CONNECT_HNDL& gCon
   stSingleDefault.eDirection    = MC_POSITIVE_DIRECTION;
   stSingleDefault.eBufferMode   = MC_BUFFERED_MODE;
   stSingleDefault.ucExecute     = 1;
-  m_axisName = axisName;
+  m_axisName                    = axisName;
 
   std::cout << " initializing axis : " << axisName << std::endl;
   axis.InitAxisData(axisName.c_str(), gConnHndl);
@@ -192,7 +154,6 @@ void TorControls::abort() {
   axis.PowerOff();
   spdlog::info("abort axis={}", m_axisName);
 }
-
 
 bool TorControls::check_status() {
   int Status = axis.ReadStatus();

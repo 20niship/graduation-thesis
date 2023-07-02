@@ -20,7 +20,7 @@
 #include <semaphore.h>
 
 #define FIRST_SUB_STATE 1
-enum eMainStateMachines{
+enum eMainStateMachines {
   eIDLE = 0,
   eSM1  = 1,
 };
@@ -28,9 +28,6 @@ enum eMainStateMachines{
 int giPrevState1;
 int giState1;
 TorControls control_a1;
-
-#define MBUS_CONNCETION_SUCESS_LIM 10  // about 0.1sec
-#define MBUS_CONNCETION_TIMEOUT_LIM 10 // about 0.1sec
 
 int main(int argc, char* argv[]) {
   if(argc < 2) {
@@ -82,6 +79,18 @@ void update() {
   if(giTerminate) return; //	Avoid reentrance of this time function
   giPrevState1 = giState1;
 
+  static unsigned long nFrames = 0;
+  nFrames++;
+
+  if(nFrames < 10) {
+    control_a1.update();
+    auto pos = control_a1.get_pos();
+    control_a1.set_target(pos);
+  } else {
+    control_a1.p_pi_controlAxis();
+  }
+
+#if 0
   switch(giState1) {
     case eIDLE: // Recieve the packet of modbus
     {
@@ -122,5 +131,6 @@ void update() {
       break;
     }
   }
+#endif
   return;
 }
