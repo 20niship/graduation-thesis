@@ -8,6 +8,8 @@
 #include <signal.h>
 #include <sys/time.h>
 
+#include "spdlog/spdlog.h"
+
 #include <chrono>
 #include <cmath>
 #include <ctime>

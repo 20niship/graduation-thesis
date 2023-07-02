@@ -56,7 +56,7 @@ set(CMAKE_CXX_STANDARD 11)
 # -I../ -I"C:/cygwin/tmp"
 # -I"C:/GMAS/includes/embl"
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -Wall -fmessage-length=0 -std=c++11 -g -Wno-deprecated -Wno-write-strings")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -Wall -fmessage-length=0 -std=c++20 -g -Wno-deprecated -Wno-write-strings")
 
 link_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib

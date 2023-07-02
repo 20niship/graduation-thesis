@@ -12,7 +12,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "spdlog/spdlog.h"
+#include "logger.h"
 #include <semaphore.h>
 
 #include <MMCConnection.h>
