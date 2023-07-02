@@ -640,7 +640,8 @@
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.elmomc.project.Cpp.Platinum.Platform.1019675568" isAbstract="false" superClass="com.elmomc.project.Cpp.Platinum.Platform"/>
 							<builder buildPath="${workspace_loc:/test_project2/PLATINUM_R}" id="com.elmomc.project.CppPlatinumBuilder.724037466" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GNU Make" superClass="com.elmomc.project.CppPlatinumBuilder"/>
 							<tool id="com.elmomc.project.CppPlatinumCompiler.1264332763" name="Platinum C++ compiler" superClass="com.elmomc.project.CppPlatinumCompiler">
-								<option id="com.elmomc.project.CppPlatinumMiscellaneousOptions.752847060" name="Other flags" superClass="com.elmomc.project.CppPlatinumMiscellaneousOptions" value="-c -fmessage-length=0 -std=c++11 -g" valueType="string"/>
+								<option id="com.elmomc.project.CppPlatinumMiscellaneousOptions.752847060" name="Other flags" superClass="com.elmomc.project.CppPlatinumMiscellaneousOptions" value="-c -fmessage-length=0 -std=c++11 -g " valueType="string"/>
+								<option id="com.elmomc.project.CppPlatinumAllWarningsOption.1911458290" name="All warnings (-Wall)" superClass="com.elmomc.project.CppPlatinumAllWarningsOption" value="false" valueType="boolean"/>
 								<inputType id="com.elmomc.project.CppPlatinumSource.1489096933" name="C source files" superClass="com.elmomc.project.CppPlatinumSource"/>
 							</tool>
 							<tool id="com.elmomc.project.CppPlatinumLinker.382940203" name="Platinum C++ linker" superClass="com.elmomc.project.CppPlatinumLinker"/>

@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+
+.metadata/
+.cache/
+build
+PLATINUM_*/

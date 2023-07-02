@@ -78,10 +78,6 @@ void terminateApp() { control_a1.abort(); }
 
 void update() {
   if(giTerminate) return; //	Avoid reentrance of this time function
-  if(giReentrance) {
-    printf("Reentrancy!\n");
-    return;
-  }
   giPrevState1 = giState1;
 
   switch(giState1) {
@@ -124,6 +120,5 @@ void update() {
       break;
     }
   }
-  giReentrance = false;
   return;
 }

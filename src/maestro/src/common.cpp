@@ -13,8 +13,7 @@
 
 #define FIRST_SUB_STATE 1
 
-int giTerminate;  // Flag to request program termination
-int giReentrance; // Used to detect reentrancy to the main timer function
+bool giTerminate=false;  // Flag to request program termination
 
 MMC_CONNECT_HNDL gConnHndl; // Connection Handle
 CMMCConnection cConn;
@@ -46,7 +45,6 @@ void MainClose() {
 }
 
 void MachineSequences() {
-  MachineSequencesInit();
   EnableMachineSequencesTimer(TIMER_CYCLE);
   while(!giTerminate) {
     MachineSequencesTimer(0);
@@ -54,12 +52,6 @@ void MachineSequences() {
     usleep(SLEEP_TIME);
   }
 }
-
-void MachineSequencesInit() {
-  giTerminate  = FALSE;
-  giReentrance = FALSE;
-}
-
 
 void BackgroundProcesses() {
   // const auto time   = std::chrono::system_clock::now();
@@ -164,12 +156,11 @@ int OnRunTimeError(const char* msg, unsigned int uiConnHndl, unsigned short usAx
 }
 
 void TerminateApplication(int iSigNum) {
-  if(giTerminate == 1) {
+  if(giTerminate) {
     LOGE << "TerminateApplicaiton関数が複数回呼ばれたのでexitします...." << LEND;
     exit(0);
   }
   LOGW << "TerminateApplicaiton関数が呼ばれました...." << LEND;
-  giTerminate = 1;
   MainClose();
 
   terminateApp();
@@ -189,16 +180,8 @@ void Emergency_Received(unsigned short usAxisRef, short sEmcyCode) { printf("Eme
 
 void MachineSequencesTimer(int iSig) {
   if(giTerminate) return; //	Avoid reentrance of this time function
-  if(giReentrance) {
-    printf("Reentrancy!\n");
-    return;
-  }                    
-  giReentrance = TRUE; 
   ReadAllInputData();  
-                       
   update();
-
   WriteAllOutputData();
-  giReentrance = FALSE;
   return;              
 }
