@@ -106,3 +106,36 @@ foreach(sourcefile ${SOURCES})
     -LC:/GMAS/lib/platinum/ -LC:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf -LC:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib -Lc:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib/arm-linux-gnueabi -Wl,-Bstatic -lMMC_APP_LIB -lMMCPPLIB -Wl,-Bdynamic -lpthread -lrt
   )
 endforeach()
+
+# make writeするとscpしてデータを送信してくれる
+add_custom_target(write-transfer DEPENDS test_project2.pexe)
+add_custom_target(write DEPENDS write-transfer)
+set(HOST "192.168.2.52")
+set(USER "user")
+set(PASS "user")
+set(REMOTE_PATH "/mnt/jffs/usr/%NAME%")
+
+# ファイルを転送するためのカスタムコマンド
+add_custom_command(
+  TARGET write-transfer
+  POST_BUILD
+  COMMAND 
+   scp test_project2.pexe ${USER}@${HOST}:${REMOTE_PATH}
+  COMMENT "Transferring file via SCP"
+)
+
+add_custom_command(
+  TARGET write-transfer
+  POST_BUILD
+  COMMAND 
+   ssh ${USER}@${HOST} chmod +x ${REMOTE_PATH}
+  COMMENT "Transferring file via SCP"
+)
+
+add_custom_target(ssh)
+add_custom_command(TARGET ssh 
+  POST_BUILD
+  COMMAND 
+    ssh ${USER}@${HOST}
+  COMMENT "Executing file via SSH"
+)
