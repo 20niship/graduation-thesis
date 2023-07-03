@@ -140,22 +140,26 @@ bool TorControls::poweron() {
   }
 
   axis.PowerOn();
-  WaitFbDone(conn_handle, NC_AXIS_STAND_STILL_MASK, &axis);
-  spdlog::info("power on is completed");
+  // WaitFbDone(conn_handle, NC_AXIS_STAND_STILL_MASK, &axis);
+  // spdlog::info("power on is completed");
+  is_power_on = true;
   return this->check_status();
 }
 
 bool TorControls::poweroff() {
   axis.PowerOff();
   spdlog::info("power off axis={}", axis.GetName());
+  is_power_on = false;
   return this->check_status();
 }
 
 void TorControls::abort() {
   spdlog::info("stop axis={}", m_axisName);
-  axis.Stop();
-  spdlog::info("poweroff axis={}", m_axisName);
-  axis.PowerOff();
+  if(is_power_on){
+    axis.Stop();
+    spdlog::info("poweroff axis={}", m_axisName);
+    axis.PowerOff();
+  }
   spdlog::info("abort axis={}", m_axisName);
 }
 

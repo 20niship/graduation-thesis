@@ -76,7 +76,6 @@ int main(int argc, char* argv[]) {
       goto terminate;
     }
 
-
     std::cout << "torque control poweron" << std::endl;
     if(!control_a1.poweron()) {
       spdlog::error("torque control poweron failed");
@@ -126,9 +125,9 @@ void update() {
   static unsigned long nFrames = 0;
   nFrames++;
 
-  // control_a2.update();
-  // auto pos = control_a2.get_pos();
-  control_a1.set_target(0);
+  control_a2.update();
+  auto pos = control_a2.get_pos();
+  control_a1.set_target(pos);
   control_a1.p_pi_controlAxis();
 
   if(isKeyPressed()) {

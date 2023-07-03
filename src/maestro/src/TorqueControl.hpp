@@ -60,4 +60,5 @@ private:
 
   double pos_error = 0;
   double last_pos_error = 0;
+  bool is_power_on = false;
 };

@@ -8,8 +8,8 @@
 #define MODBUS_READ_CNT 16           // Number of registers to read
 #define MODBUS_UPDATE_START_INDEX 16 // Start of Modbus write address (update to host)
 #define MODBUS_UPDATE_CNT 16         // Number of registers to update
-#define SLEEP_TIME 10000             // Sleep time of the backround idle loop, in micro seconds
-#define TIMER_CYCLE 20               // Cycle time of the main sequences timer, in ms
+#define SLEEP_TIME 2000             // Sleep time of the backround idle loop, in micro seconds
+#define TIMER_CYCLE 5               // Cycle time of the main sequences timer, in ms
 
 #define FIRST_SUB_STATE 1
 
