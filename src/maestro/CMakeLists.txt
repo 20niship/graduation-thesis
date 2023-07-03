@@ -58,10 +58,10 @@ include_directories(${EXTRA_INCLUDES})
 
 set(CMAKE_CXX_FLAGS "-D_PLATINUM -O0 -c -Wall -fmessage-length=0 -std=c++11 -g -Wno-deprecated -Wno-write-strings")
 
-# link_directories(
-#   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib
-#   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform
-# )
+link_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib
+  ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform
+)
 
 file(GLOB MAESTRO_LIBS 
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/*.a
@@ -96,14 +96,17 @@ set (CMAKE_EXE_LINKER_FLAGS "-Wl,-Bstatic -lMMC_APP_LIB -lMMCPPLIB -Wl,-Bdynamic
 foreach(sourcefile ${SOURCES})
   get_filename_component(name ${sourcefile} NAME)
   add_executable(${name} ${sourcefile} ${LIB_MAESTRO_SOURCES})
-  # target_link_libraries(${name} Threads::Threads)
+  target_link_libraries(${name} Threads::Threads ${MAESTRO_LIBS})
   add_custom_command(TARGET ${name} POST_BUILD
   COMMAND 
     ${CMAKE_CXX_COMPILER} -otest_project2.pexe 
     CMakeFiles/test_project2.cpp.dir/test_project2.cpp.o 
     CMakeFiles/test_project2.cpp.dir/src/common.cpp.o 
     CMakeFiles/test_project2.cpp.dir/src/TorqueControl.cpp.o 
-    -LC:/GMAS/lib/platinum/ -LC:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf -LC:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib -Lc:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib/arm-linux-gnueabi -Wl,-Bstatic -lMMC_APP_LIB -lMMCPPLIB -Wl,-Bdynamic -lpthread -lrt
+    -L${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib
+    -L${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform
+    -Wl,-Bstatic -lMMC_APP_LIB -lMMCPPLIB -Wl,-Bdynamic -lpthread -lrt 
+  COMMENT "Linking to pexe"
   )
 endforeach()
 
@@ -113,7 +116,7 @@ add_custom_target(write DEPENDS write-transfer)
 set(HOST "192.168.2.52")
 set(USER "user")
 set(PASS "user")
-set(REMOTE_PATH "/mnt/jffs/usr/%NAME%")
+set(REMOTE_PATH "/mnt/jffs/usr/${NAME}")
 
 # ファイルを転送するためのカスタムコマンド
 add_custom_command(
@@ -132,7 +135,7 @@ add_custom_command(
   COMMENT "Transferring file via SCP"
 )
 
-add_custom_target(ssh)
+add_custom_target(ssh DEPENDS write)
 add_custom_command(TARGET ssh 
   POST_BUILD
   COMMAND 
