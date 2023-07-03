@@ -83,6 +83,9 @@ inline void error(const std::string &msg,  ...){
 inline void error(const std::string&msg, const std::string&hoge){
   error(msg + ", " + hoge);
 }
+inline void error(const std::string&msg, const char*hoge){
+  error(msg + ", " + hoge);
+}
 inline void warn(const std::string &msg,  ...){
   LOGW << msg << LEND;
 }
@@ -98,4 +101,6 @@ inline void debug(const std::string &msg,  ...){
 }
 }
 #endif
+
+#define DISP(X) std::cout << #X << " = " << X << std::endl;
 

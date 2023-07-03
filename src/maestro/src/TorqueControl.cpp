@@ -84,7 +84,7 @@ return;
   //   tor_order_integral += ki * (v_order - now_vel);
   // }
 
-  tor_order = up; // + ud + ui;
+  tor_order = up + ud ; //+ ui;
   tor_order = std::min(std::max(tor_order, -lim_mA), lim_mA);
   std::cout << "p " << now_pos << " \t v " << now_vel << " \t t " << target_pos << " \t [tor] " << tor_order << " [lim] " << lim_mA << std::endl;
   axis.MoveTorque(tor_order, 5.0 * pow(10, 6), 1.0 * pow(10, 8), MC_ABORTING_MODE);
@@ -152,6 +152,8 @@ bool TorControls::poweroff() {
 }
 
 void TorControls::abort() {
+  spdlog::info("stop axis={}", m_axisName);
+  axis.Stop();
   spdlog::info("poweroff axis={}", m_axisName);
   axis.PowerOff();
   spdlog::info("abort axis={}", m_axisName);

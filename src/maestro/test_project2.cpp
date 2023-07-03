@@ -1,6 +1,7 @@
 #include "mmcpplib.h"
 #include "src/TorqueControl.hpp"
 #include "src/common.h"
+#include "src/get_cmmc_exception_error_message.hpp"
 
 #include <MMC_definitions.h>
 #include <iostream>
@@ -82,13 +83,26 @@ int main(int argc, char* argv[]) {
       goto terminate;
     }
 
+    control_a1.set_KP(kp);
+    control_a1.set_KD(kd);
+
     MachineSequences();
     return 0;
   } catch(CMMCException excp) {
     spdlog::error("CMMCException: {}", excp.what());
     spdlog::error("   : axisref = {}", excp.axisRef());
     spdlog::error("   : error = {}", excp.error());
+    // Maestro Administrative and Motion API.pdf の 66ページ参照
     spdlog::error("   : status = {}", excp.status());
+
+    const auto msg = get_cmmc_exception_error_message(excp);
+    spdlog::error(msg);
+
+    DISP(excp.what());
+    DISP(excp.axisRef());
+    DISP(excp.error());
+    DISP(excp.status());
+
     goto terminate;
   } catch(std::exception& e) {
     spdlog::error("std Exception: {}", e.what());

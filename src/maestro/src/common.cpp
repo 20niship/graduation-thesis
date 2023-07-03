@@ -159,6 +159,7 @@ int OnRunTimeError(const char* msg, unsigned int uiConnHndl, unsigned short usAx
   return 0;
 }
 
+
 void TerminateApplication(int iSigNum) {
   if(giTerminate) {
     spdlog::error("TerminateApplicaiton関数が複数回呼ばれたのでexitします....");
@@ -166,8 +167,8 @@ void TerminateApplication(int iSigNum) {
   }
   spdlog::warn("TerminateApplicaiton called exiting");
   sigignore(SIGALRM);
-  MainClose();
   terminateApp();
+  MainClose();
   // control_a1.abort();
   exit(0);
   giTerminate = true;

@@ -49,7 +49,7 @@ private:
   double kd = 0; // [mA/(cnt/s)]
   double ki = 0; // [/ms]
   double target_pos = 0;
-  int torLim_mA  = 1000;
+  int torLim_mA  = 200;
   int target_pos_old;
 
   MMC_CONNECT_HNDL conn_handle;

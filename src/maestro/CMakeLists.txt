@@ -58,11 +58,6 @@ include_directories(${EXTRA_INCLUDES})
 
 set(CMAKE_CXX_FLAGS "-D_PLATINUM -O0 -c -Wall -fmessage-length=0 -std=c++11 -g -Wno-deprecated -Wno-write-strings")
 
-link_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib
-  ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform
-)
-
 file(GLOB MAESTRO_LIBS 
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/*.a
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/*.lib
@@ -83,14 +78,22 @@ file(GLOB SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
 )
 
-# link_directories(
-#   c:/GMAS/lib/platinum/
-#   c:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib/
-#   c:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib/arm-linux-gnueabi/
-#   c:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf/
-#   c:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/usr/lib/
-#   c:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/lib/
-# )
+if(WIN32)
+  link_directories(
+    c:/GMAS/lib/platinum/
+    c:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib/
+    c:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib/arm-linux-gnueabi/
+    c:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf/
+    c:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/usr/lib/
+    c:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/lib/
+  )
+else()
+  link_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib
+    ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform
+  )
+endif()
+
 set (CMAKE_EXE_LINKER_FLAGS "-Wl,-Bstatic -lMMC_APP_LIB -lMMCPPLIB -Wl,-Bdynamic -lpthread -lrt")
 
 foreach(sourcefile ${SOURCES})
@@ -103,8 +106,12 @@ foreach(sourcefile ${SOURCES})
     CMakeFiles/test_project2.cpp.dir/test_project2.cpp.o 
     CMakeFiles/test_project2.cpp.dir/src/common.cpp.o 
     CMakeFiles/test_project2.cpp.dir/src/TorqueControl.cpp.o 
-    -L${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib
-    -L${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform
+    -L"${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib"
+    -L"${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform"
+    -LC:/GMAS/lib/platinum/ 
+    -LC:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf 
+    -LC:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib 
+    -Lc:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib/arm-linux-gnueabi 
     -Wl,-Bstatic -lMMC_APP_LIB -lMMCPPLIB -Wl,-Bdynamic -lpthread -lrt 
   COMMENT "Linking to pexe"
   )
@@ -116,7 +123,7 @@ add_custom_target(write DEPENDS write-transfer)
 set(HOST "192.168.2.52")
 set(USER "user")
 set(PASS "user")
-set(REMOTE_PATH "/mnt/jffs/usr/${NAME}")
+set(REMOTE_PATH "/mnt/jffs/usr/main.pexe")
 
 # ファイルを転送するためのカスタムコマンド
 add_custom_command(
@@ -138,7 +145,6 @@ add_custom_command(
 add_custom_target(ssh DEPENDS write)
 add_custom_command(TARGET ssh 
   POST_BUILD
-  COMMAND 
-    ssh ${USER}@${HOST}
+  COMMAND ssh ${USER}@${HOST}
   COMMENT "Executing file via SSH"
 )
