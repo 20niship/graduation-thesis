@@ -29,8 +29,9 @@ endif()
 set(CMAKE_C_BYTE_ORDER LITTLE_ENDIAN)
 set(CMAKE_CXX_BYTE_ORDER LITTLE_ENDIAN)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# set linker flags
 set(CMAKE_EXE_LINKER_FLAGS  "-Wl,--hash-style=sysv" )
 
 project(ExampleProject)
@@ -47,8 +48,6 @@ set(EXTRA_INCLUDES
 )
 
 include_directories(${EXTRA_INCLUDES})
-
-set(CMAKE_CXX_STANDARD 11)
 
 # -I"C:\cygwin\opt\crosstool\gcc-linaro-arm-linux-gnu\arm-linux-gnueabihf\libc\usr\include" 
 # -I"C:\cygwin\opt\crosstool\gcc-linaro-arm-linux-gnu\arm-linux-gnueabihf\include\c++\4.7.3"
