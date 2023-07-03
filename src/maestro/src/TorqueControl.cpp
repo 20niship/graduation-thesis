@@ -36,8 +36,7 @@ TorControls::TorControls(double kp_pos, double kp_vel, double ki_vel, double cur
   // TODO Auto-generated constructor stub
   kp = kp_pos / (2.0 * M_PI); // [rad/s] to [/s]
   kd = kp_vel * 1000.;        // [A/(cnt/s)] to [mA/(cnt/s)]
-  ki = ki_vel / 1000.;        // [Hz] = [1/s] to [1/ms]
-  // initialize private variables
+  ki = 0; //ki_vel / 1000.;        // [Hz] = [1/s] to [1/ms]
   tor_order_integral = 0;
   torLimFlag         = false;
 }
@@ -75,19 +74,23 @@ return;
 #endif
   this->update();
 
-  const double pos_err = (target_pos * 1.0 - now_pos);
+  pos_error= (target_pos * 1.0 - now_pos);
   const double lim_mA  = get_currentLim();
 
-  const auto v_order = kp * pos_err;
-  tor_order          = kd * (v_order - now_vel + tor_order_integral);
+  const auto up = kp * pos_error;
+  const auto ud = kd * (pos_error - last_pos_error);
+  const auto ui = ki * tor_order_integral;
 
-  if(torLimFlag == false) {
-    tor_order_integral += ki * (v_order - now_vel);
-  }
+  // if(torLimFlag == false) {
+  //   tor_order_integral += ki * (v_order - now_vel);
+  // }
 
+  tor_order = up + ud + ui;
   tor_order = std::min(std::max(tor_order, -lim_mA), lim_mA);
   std::cout << "p " << now_pos << " \t v " << now_vel << " \t t " << target_pos << " \t [tor] " << tor_order << " [lim] " << lim_mA << std::endl;
   axis.MoveTorque(tor_order, 5.0 * pow(10, 6), 1.0 * pow(10, 8), MC_ABORTING_MODE);
+
+  last_pos_error = pos_error;
 
   //			single_axis.MoveAbsoluteRepetitive(target_pos,MC_ABORTING_MODE);
   //			cout <<"vOrd" << v_order <<  "tOrd" << tor_order << " ** ";
@@ -121,7 +124,7 @@ bool TorControls::init(const std::string& axisName, const MMC_CONNECT_HNDL& gCon
 
 
 bool TorControls::poweron() {
-  std::cout << "power on start......" << std::endl;
+  std::cout << "power on start......" << m_axisName << std::endl;
   int ret = axis.SetOpMode(OPM402_CYCLIC_SYNC_TORQUE_MODE);
   if(ret != 0) {
     spdlog::error("set operation mode failed!!");

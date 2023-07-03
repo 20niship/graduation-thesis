@@ -8,8 +8,6 @@
 #include <signal.h>
 #include <sys/time.h>
 
-#include "spdlog/spdlog.h"
-
 #include <chrono>
 #include <cmath>
 #include <ctime>
@@ -27,32 +25,46 @@ enum eMainStateMachines {
 
 int giPrevState1;
 int giState1;
-TorControls control_a1;
+TorControls control_a1, control_a2;
 
 int main(int argc, char* argv[]) {
-  if(argc < 2) {
-    spdlog::error("usage {} <axis> ", argv[0]);
-    return 1;
+  if(argc != 3) {
+    std::cout << "Usage: " << argv[0] << " <kp> <kd>" << std::endl;
+    return 0;
   }
-  const char* axis_name = argv[1];
+
+  float kp = std::stof(argv[1]);
+  float kd = std::stof(argv[2]);
+  std::cout << "kp: " << kp << " kd: " << kd << std::endl;
 
   try {
     MainInit();
-
     control_a1 = TorControls(166, 0.095 * std::pow(10, -5), 1.5, 2000);
-    std::cout << "torque control init  axis= [" << axis_name << "]" << std::endl;
-    bool ret = control_a1.init(axis_name, gConnHndl);
-    if(!ret) {
+    control_a2 = TorControls(166, 0.095 * std::pow(10, -5), 1.5, 2000);
+
+    if(!control_a1.init("a01", gConnHndl)){
       spdlog::error("torque control init failed");
       goto terminate;
     }
+
+    if(!control_a2.init("a02", gConnHndl)){
+      spdlog::error("torque control init failed");
+      goto terminate;
+    }
+
+
     std::cout << "torque control poweron" << std::endl;
-    ret = control_a1.poweron();
-    if(!ret) {
+    if(!control_a1.poweron()) {
       spdlog::error("torque control poweron failed");
       goto terminate;
     }
+    if(!control_a2.poweron()){
+      spdlog::error("torque control poweron failed");
+      goto terminate;
+    }
+
     MachineSequences();
+    return 0;
   } catch(CMMCException excp) {
     spdlog::error("CMMCException: {}", excp.what());
     spdlog::error("   : axisref = {}", excp.axisRef());
@@ -69,68 +81,20 @@ int main(int argc, char* argv[]) {
 
 terminate:
   MainClose();
+  giTerminate=true;
   spdlog::info("MainClose end");
   return 1;
 }
 
-void terminateApp() { control_a1.abort(); }
+void terminateApp() { control_a1.abort(); control_a2.abort();}
 
 void update() {
   if(giTerminate) return; //	Avoid reentrance of this time function
-  giPrevState1 = giState1;
-
   static unsigned long nFrames = 0;
   nFrames++;
 
-  if(nFrames < 10) {
-    control_a1.update();
-    auto pos = control_a1.get_pos();
-    control_a1.set_target(pos);
-  } else {
-    control_a1.p_pi_controlAxis();
-  }
-
-#if 0
-  switch(giState1) {
-    case eIDLE: // Recieve the packet of modbus
-    {
-      giState1 = eSM1;
-      break;
-
-      if(MBUS_PACKET_FLAG) {
-        static int counter = 0;
-        counter += 1;
-        if(counter > MBUS_CONNCETION_SUCESS_LIM) {
-          giState1 = eSM1;
-        }
-      } else {
-        static int counter2 = 0;
-        std::cout << "waiting for host connection......." << std::endl;
-        counter2 += 1;
-        if(counter2 > MBUS_CONNCETION_TIMEOUT_LIM) {
-          spdlog::warn("no host pc found! continue next....");
-          control_a1.reset_integral();
-          giState1 = eSM1;
-          break;
-        }
-      }
-      MBUS_PACKET_FLAG = false; // for Re-entrance avoidance
-      break;
-    }
-
-    case eSM1: {
-      control_a1.p_pi_controlAxis();
-      giState1 = eIDLE;
-      break;
-    }
-
-    default: // The default case. Should not happen, the user can implement error handling.
-    {
-      std::cout << "<<default>>" << std::endl;
-      giState1 = eIDLE;
-      break;
-    }
-  }
-#endif
-  return;
+  control_a2.update();
+  auto pos = control_a2.get_pos();
+  control_a1.set_target(pos);
+  control_a1.p_pi_controlAxis();
 }

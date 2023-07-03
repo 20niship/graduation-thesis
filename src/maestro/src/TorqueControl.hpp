@@ -12,8 +12,12 @@ public:
   void p_pi_controlAxis();
   void reset_integral();
   int get_currentLim() const { return std::max(torLim_mA, 0); }
-  double get_KP_pos() const { return kp; }
-  double get_KP_vel() const { return kd; }
+  double get_KP() const { return kp; }
+  double get_KD() const { return kd; }
+  double get_KI() const { return ki; }
+  void set_KP(double p) { kp = p; }
+  void set_KD(double d) { kd = d; }
+  void set_KI(double i) { ki = i; }
   double get_tor_order() const { return tor_order; }
   void set_target(double p) { target_pos = p; }
   void set_limit(double l) { torLim_mA = l; }
@@ -39,9 +43,9 @@ private:
   CMMCSingleAxis axis;
   std::string m_axisName;
 
-  double kp; // [/s]
-  double kd; // [mA/(cnt/s)]
-  double ki; // [/ms]
+  double kp = 0; // [/s]
+  double kd = 0; // [mA/(cnt/s)]
+  double ki = 0; // [/ms]
   int target_pos = 0;
   int torLim_mA  = 500;
   int target_pos_old;
@@ -51,4 +55,7 @@ private:
   double now_pos, now_vel;
   double tor_order, tor_order_integral;
   bool torLimFlag;
+
+  double pos_error = 0;
+  double last_pos_error = 0;
 };
