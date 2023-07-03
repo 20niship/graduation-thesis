@@ -42,7 +42,6 @@ TorControls::TorControls(double kp_pos, double kp_vel, double ki_vel, double cur
 }
 
 void TorControls::reset_integral() {
-  cout << "RES";
   tor_order_integral = 0;
   tor_order          = 0;
   torLimFlag         = false;

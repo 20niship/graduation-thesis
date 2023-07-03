@@ -44,24 +44,6 @@ void MainClose() {
   std::cout << " exiting........" << std::endl;
 }
 
-void MachineSequences() {
-  EnableMachineSequencesTimer(TIMER_CYCLE);
-  while(!giTerminate) {
-    MachineSequencesTimer(0);
-    BackgroundProcesses();
-    usleep(SLEEP_TIME);
-  }
-}
-
-void BackgroundProcesses() {
-  // const auto time   = std::chrono::system_clock::now();
-  // auto hour         = std::chrono::duration_cast<std::chrono::hours>(time.time_since_epoch()).count() % 24;
-  // auto minute       = std::chrono::duration_cast<std::chrono::minutes>(time.time_since_epoch()).count() % 60;
-  // auto seconds      = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count() % 60;
-  // auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(time.time_since_epoch()).count() % 1000;
-  // std::cout << "[time] " << hour << ":" << minute << ":" << seconds << ":" << milliseconds << std::endl;
-}
-
 void EnableMachineSequencesTimer(int TimerCycle) {
   struct itimerval timer;
   struct sigaction stSigAction;
@@ -72,6 +54,7 @@ void EnableMachineSequencesTimer(int TimerCycle) {
   sigaction(SIGABRT, &stSigAction, NULL);
   sigaction(SIGQUIT, &stSigAction, NULL);
   sigaction(SIGKILL, &stSigAction, NULL);
+  sigaction(SIGSTOP, &stSigAction, NULL);
 #else
   std::signal(SIGINT, MainClose);
   std::signal(SIGTERM, MainClose);
@@ -94,6 +77,25 @@ void EnableMachineSequencesTimer(int TimerCycle) {
   //	setitimer(ITIMER_REAL, &timer, NULL);			- Temporarily !!!
   //	signal(SIGALRM, MachineSequencesTimer); 		// every TIMER_CYCLE ms SIGALRM is received which calls MachineSequencesTimer()
   return;
+}
+
+
+void MachineSequences() {
+  EnableMachineSequencesTimer(TIMER_CYCLE);
+  while(!giTerminate) {
+    MachineSequencesTimer(0);
+    BackgroundProcesses();
+    usleep(SLEEP_TIME);
+  }
+}
+
+void BackgroundProcesses() {
+  // const auto time   = std::chrono::system_clock::now();
+  // auto hour         = std::chrono::duration_cast<std::chrono::hours>(time.time_since_epoch()).count() % 24;
+  // auto minute       = std::chrono::duration_cast<std::chrono::minutes>(time.time_since_epoch()).count() % 60;
+  // auto seconds      = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count() % 60;
+  // auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(time.time_since_epoch()).count() % 1000;
+  // std::cout << "[time] " << hour << ":" << minute << ":" << seconds << ":" << milliseconds << std::endl;
 }
 
 

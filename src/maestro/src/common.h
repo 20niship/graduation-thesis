@@ -25,7 +25,6 @@
 void MainInit();
 void MachineSequences();
 void MainClose();
-void EnableMachineSequencesTimer(int TimerCycle);
 void BackgroundProcesses();
 void MachineSequencesClose();
 void MachineSequencesTimer(int iSig);

@@ -17,14 +17,37 @@
 #include "src/logger.h"
 #include <semaphore.h>
 
-#define FIRST_SUB_STATE 1
-enum eMainStateMachines {
-  eIDLE = 0,
-  eSM1  = 1,
-};
+#include <iostream>
+#include <termios.h>
+#include <unistd.h>
 
-int giPrevState1;
-int giState1;
+bool isKeyPressed()
+{
+    struct termios oldSettings, newSettings;
+    tcgetattr(STDIN_FILENO, &oldSettings);
+    newSettings = oldSettings;
+    newSettings.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newSettings);
+
+    bool keyPressed = false;
+    fd_set readSet;
+    FD_ZERO(&readSet);
+    FD_SET(STDIN_FILENO, &readSet);
+    struct timeval timeout;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 0;
+
+    if (select(STDIN_FILENO + 1, &readSet, NULL, NULL, &timeout) > 0)
+    {
+        char c;
+        read(STDIN_FILENO, &c, 1);
+        keyPressed = true;
+    }
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldSettings);
+    return keyPressed;
+}
+
 TorControls control_a1, control_a2;
 
 int main(int argc, char* argv[]) {
@@ -55,10 +78,6 @@ int main(int argc, char* argv[]) {
 
     std::cout << "torque control poweron" << std::endl;
     if(!control_a1.poweron()) {
-      spdlog::error("torque control poweron failed");
-      goto terminate;
-    }
-    if(!control_a2.poweron()){
       spdlog::error("torque control poweron failed");
       goto terminate;
     }
@@ -97,4 +116,9 @@ void update() {
   auto pos = control_a2.get_pos();
   control_a1.set_target(pos);
   control_a1.p_pi_controlAxis();
+
+  if(isKeyPressed()) {
+    spdlog::info("Terminate app by key press");
+    TerminateApplication(0);
+  }
 }
