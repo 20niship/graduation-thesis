@@ -36,6 +36,8 @@ public:
 
   double get_pos() const { return now_pos; }
   double get_vel() const { return now_vel; }
+  
+  void goto_home();
 
 private:
   void sync_state();
@@ -46,7 +48,7 @@ private:
   double kp = 0; // [/s]
   double kd = 0; // [mA/(cnt/s)]
   double ki = 0; // [/ms]
-  int target_pos = 0;
+  double target_pos = 0;
   int torLim_mA  = 1000;
   int target_pos_old;
 

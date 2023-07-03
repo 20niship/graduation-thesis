@@ -73,7 +73,7 @@ return;
 #endif
   this->update();
 
-  pos_error= (target_pos * 1.0 - now_pos);
+  pos_error= (target_pos - now_pos);
   const double lim_mA  = get_currentLim();
 
   const auto up = kp * pos_error;
@@ -84,7 +84,7 @@ return;
   //   tor_order_integral += ki * (v_order - now_vel);
   // }
 
-  tor_order = up + ud + ui;
+  tor_order = up; // + ud + ui;
   tor_order = std::min(std::max(tor_order, -lim_mA), lim_mA);
   std::cout << "p " << now_pos << " \t v " << now_vel << " \t t " << target_pos << " \t [tor] " << tor_order << " [lim] " << lim_mA << std::endl;
   axis.MoveTorque(tor_order, 5.0 * pow(10, 6), 1.0 * pow(10, 8), MC_ABORTING_MODE);
@@ -155,6 +155,11 @@ void TorControls::abort() {
   spdlog::info("poweroff axis={}", m_axisName);
   axis.PowerOff();
   spdlog::info("abort axis={}", m_axisName);
+}
+
+void TorControls::goto_home(){
+  spdlog::info("homing....");
+  axis.MoveAbsolute(0, 1000000, 1000000, MC_BUFFERED_MODE);
 }
 
 bool TorControls::check_status() {
