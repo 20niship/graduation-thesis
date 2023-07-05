@@ -16,7 +16,7 @@
 #include <sstream>
 #include <string>
 
-#if 0
+#if 1
 #include "../external/spdlog/include/spdlog/sinks/basic_file_sink.h"
 #include "../external/spdlog/include/spdlog/sinks/stdout_color_sinks.h"
 #include "../external/spdlog/include/spdlog/spdlog.h"

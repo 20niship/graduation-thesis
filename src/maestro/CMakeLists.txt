@@ -1,18 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# set(CMAKE_C_COMPILER "C:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/bin/arm-linux-gnueabihf-gcc.exe")
-# set(CMAKE_CXX_COMPILER "C:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/bin/arm-linux-gnueabihf-g++.exe")
-
-# set(CMAKE_SYSTEM_NAME Arm)
-
-# set(COMPILER_PATH /home/mech-user/Downloads/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin)
-# set(CMAKE_CXX_COMPILER ${COMPILER_PATH}/arm-linux-gnueabihf-g++)
-# set(CMAKE_C_COMPILER  ${COMPILER_PATH}/arm-linux-gnueabihf-gcc) 
-
 SET(CMAKE_SYSTEM_NAME Linux)
-# check if windows
 if(WIN32)
   set(CMAKE_C_COMPILER "C:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/bin/arm-linux-gnueabihf-gcc.exe")
   set(CMAKE_CXX_COMPILER "C:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/bin/arm-linux-gnueabihf-g++.exe")
@@ -20,12 +9,12 @@ else()
   set(COMPILER_PATH "/home/owner/.myenv/gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabihf/bin")
   set(CMAKE_C_COMPILER   ${COMPILER_PATH}/arm-linux-gnueabihf-gcc)
   set(CMAKE_CXX_COMPILER ${COMPILER_PATH}/arm-linux-gnueabihf-g++)
+
+  # デフォルトだとコンパイラが新しすぎてGLIBCのバージョンが対応していないので、
+  # Linaro Resourcecsからダウンロードしたコンパイラ（↑)を使うこと！
   # set(CMAKE_CXX_COMPILER /usr/bin/powerpc-linux-gnu-g++)
   # set(CMAKE_C_COMPILER  /usr/bin/powerpc-linux-gnu-gcc)
 endif()
-
-# SET(CMAKE_C_COMPILER /usr/bin/arm-linux-gnueabihf-gcc)
-# SET(CMAKE_CXX_COMPILER /usr/bin/arm-linux-gnueabihf-g++)
 
 set(CMAKE_C_BYTE_ORDER LITTLE_ENDIAN)
 set(CMAKE_CXX_BYTE_ORDER LITTLE_ENDIAN)
@@ -50,13 +39,6 @@ set(EXTRA_INCLUDES
 
 include_directories(${EXTRA_INCLUDES})
 
-# -I"C:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/usr/include" 
-# -I"C:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/include/c++/4.7.3"
-# -I"C:/GMAS/includes"
-# -I"C:/GMAS/includes/cpp"
-# -I../ -I"C:/cygwin/tmp"
-# -I"C:/GMAS/includes/embl"
-
 set(CMAKE_CXX_FLAGS "-D_PLATINUM -O0 -c -Wall -fmessage-length=0 -std=c++11 -g -Wno-deprecated -Wno-write-strings")
 
 file(GLOB MAESTRO_LIBS 
@@ -73,7 +55,6 @@ file(GLOB LIB_MAESTRO_SOURCES
 # add_library(my-maestro ${LIB_MAESTRO_SOURCES})
 # target_link_libraries(my-maestro Threads::Threads)
 
-# foreach cpp files
 file(GLOB SOURCES 
   ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
 )
@@ -108,10 +89,6 @@ foreach(sourcefile ${SOURCES})
     CMakeFiles/test_project2.cpp.dir/src/TorqueControl.cpp.o 
     -L"${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platinum"
     # -LC:/GMAS/lib/platinum/ 
-    # -L/media/owner/Windows/GMAS/lib/platinum/
-    # -LC:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf 
-    # -LC:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib 
-    # -Lc:/cygwin/opt/crosstool/gcc-linaro-arm-linux-gnu/arm-linux-gnueabihf/lib/arm-linux-gnueabi 
     -Wl,-Bstatic -lMMC_APP_LIB -lMMCPPLIB -Wl,-Bdynamic -lpthread -lrt
   COMMENT "Linking to pexe"
   )
@@ -142,9 +119,3 @@ add_custom_command(
   COMMENT "Transferring file via SCP"
 )
 
-add_custom_target(ssh DEPENDS write)
-add_custom_command(TARGET ssh 
-  POST_BUILD
-  COMMAND ssh ${USER}@${HOST}
-  COMMENT "Executing file via SSH"
-)

@@ -59,8 +59,10 @@ int main(int argc, char* argv[]) {
 
   float kp = std::stof(argv[1]);
   float kd = std::stof(argv[2]);
-  std::cout << "kp: " << kp << " kd: " << kd << std::endl;
 
+  init_logger();
+
+  spdlog::info("kp: {} kd: {}", kp, kd);
   try {
     MainInit();
     control_a1 = TorControls(166, 0.095 * std::pow(10, -5), 1.5, 2000);
