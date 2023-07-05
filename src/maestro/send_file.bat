@@ -6,7 +6,7 @@ set NAME="test_project2.pexe"
 set LOCAL_PATH="%TARGET%/%NAME%"
 
 REM scp to remote server
-set SERVER="192.168.2.110"
+set SERVER="192.168.2.52"
 set USER="user"
 set PASS="user"
 set REMOTE_PATH="/mnt/jffs/usr/%NAME%"

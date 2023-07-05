@@ -1,3 +1,9 @@
 [submodule "src/maestro/GMAS-elmo-lib"]
 	path = src/maestro/GMAS-elmo-lib
 	url = git@github.com:20niship/GMAS-elmo-lib.git
+[submodule "src/maestro/external/cpptoml"]
+	path = src/maestro/external/cpptoml
+	url = https://github.com/skystrife/cpptoml.git
+[submodule "src/maestro/external/spdlog"]
+	path = src/maestro/external/spdlog
+	url = https://github.com/gabime/spdlog.git

@@ -6,7 +6,7 @@ NAME="example.pexe"
 LOCAL_PATH="$TARGET/$NAME"
 
 # scp to remote server
-SERVER="192.168.2.110"
+SERVER="192.168.2.52"
 USER="user"
 PASS="user"
 REMOTE_PATH="/mnt/jffs/usr/$NAME"

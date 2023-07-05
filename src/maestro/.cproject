@@ -26,6 +26,9 @@
 							<tool id="com.elmomc.project.CppLinker.2104431769" name="Gold C++ linker" superClass="com.elmomc.project.CppLinker"/>
 						</toolChain>
 					</folderInfo>
+					<sourceEntries>
+						<entry excluding="external|external/spdlog/bench|GMAS-elmo-lib|external/cpptoml/examples|external/spdlog/src|external/spdlog/tests" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
@@ -233,6 +236,9 @@
 							<tool id="com.elmomc.project.CppPlatinumLinker.1332856173" name="Platinum C++ linker" superClass="com.elmomc.project.CppPlatinumLinker"/>
 						</toolChain>
 					</folderInfo>
+					<sourceEntries>
+						<entry excluding="external|external/spdlog/bench|GMAS-elmo-lib|external/cpptoml/examples|external/spdlog/src|external/spdlog/tests" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
@@ -439,6 +445,9 @@
 							<tool id="com.elmomc.project.CppLinker.1205984116" name="Gold C++ linker" superClass="com.elmomc.project.CppLinker"/>
 						</toolChain>
 					</folderInfo>
+					<sourceEntries>
+						<entry excluding="external|external/spdlog/bench|GMAS-elmo-lib|external/cpptoml/examples|external/spdlog/src|external/spdlog/tests" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
@@ -640,12 +649,27 @@
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.elmomc.project.Cpp.Platinum.Platform.1019675568" isAbstract="false" superClass="com.elmomc.project.Cpp.Platinum.Platform"/>
 							<builder buildPath="${workspace_loc:/test_project2/PLATINUM_R}" id="com.elmomc.project.CppPlatinumBuilder.724037466" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GNU Make" superClass="com.elmomc.project.CppPlatinumBuilder"/>
 							<tool id="com.elmomc.project.CppPlatinumCompiler.1264332763" name="Platinum C++ compiler" superClass="com.elmomc.project.CppPlatinumCompiler">
-								<option id="com.elmomc.project.CppPlatinumMiscellaneousOptions.752847060" name="Other flags" superClass="com.elmomc.project.CppPlatinumMiscellaneousOptions" value="-c -fmessage-length=0 -std=c++11 -g" valueType="string"/>
+								<option id="com.elmomc.project.CppPlatinumMiscellaneousOptions.752847060" name="Other flags" superClass="com.elmomc.project.CppPlatinumMiscellaneousOptions" value="-c -fmessage-length=0 -std=c++11 -g " valueType="string"/>
+								<option id="com.elmomc.project.CppPlatinumAllWarningsOption.1911458290" name="All warnings (-Wall)" superClass="com.elmomc.project.CppPlatinumAllWarningsOption" value="false" valueType="boolean"/>
+								<option id="com.elmomc.project.CppPlatinumIncludesOption.1434904377" name="Include paths (-I)" superClass="com.elmomc.project.CppPlatinumIncludesOption" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;C:\cygwin\opt\crosstool\gcc-linaro-arm-linux-gnu\arm-linux-gnueabihf\libc\usr\include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Users\Owner\Desktop\graduation-thesis\src\maestro\external\spdlog\include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\cygwin\opt\crosstool\gcc-linaro-arm-linux-gnu\arm-linux-gnueabihf\include\c++\4.7.3&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:/GMAS/includes&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:/GMAS/includes/cpp&quot;"/>
+									<listOptionValue builtIn="false" value="../"/>
+									<listOptionValue builtIn="false" value="&quot;C:/cygwin/tmp&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:/GMAS/includes/embl&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/spdlog/include}&quot;"/>
+								</option>
 								<inputType id="com.elmomc.project.CppPlatinumSource.1489096933" name="C source files" superClass="com.elmomc.project.CppPlatinumSource"/>
 							</tool>
 							<tool id="com.elmomc.project.CppPlatinumLinker.382940203" name="Platinum C++ linker" superClass="com.elmomc.project.CppPlatinumLinker"/>
 						</toolChain>
 					</folderInfo>
+					<sourceEntries>
+						<entry excluding="external|external/spdlog/bench|GMAS-elmo-lib|external/cpptoml/examples|external/spdlog/src|external/spdlog/tests" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>

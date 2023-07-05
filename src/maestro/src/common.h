@@ -25,8 +25,6 @@
 void MainInit();
 void MachineSequences();
 void MainClose();
-void MachineSequencesInit();
-void EnableMachineSequencesTimer(int TimerCycle);
 void BackgroundProcesses();
 void MachineSequencesClose();
 void MachineSequencesTimer(int iSig);
@@ -38,8 +36,7 @@ void Emergency_Received(unsigned short usAxisRef, short sEmcyCode);
 void ModbusWrite_Received();
 int CallbackFunc(unsigned char* recvBuffer, short recvBufferSize, void* lpsock);
 
-extern int giTerminate;  // Flag to request program termination
-extern int giReentrance; // Used to detect reentrancy to the main timer function
+extern bool giTerminate;  // Flag to request program termination
 
 extern MMC_CONNECT_HNDL gConnHndl; // Connection Handle
 extern CMMCConnection cConn;
