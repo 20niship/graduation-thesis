@@ -24,33 +24,32 @@ PROJECTS := $(wildcard ./*.cpp)
 OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 EXES := $(patsubst ./%.cpp,$(OUTPUT_DIR)/%.pexe,$(PROJECTS))
 
-# .SILENT:
+.SILENT:
 
-all: $(EXES)
-
-show: 
-	@echo $(SRCS)
-	@echo $(PROJECTS)
-	@echo $(OBJS)
-	@echo $(EXES)
+all: $(EXES) $(OBJS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp Makefile
-	@echo "build : $< .. $@  ,, $^"
+	@echo "build : $< ..."
 	@mkdir -p $(OBJ_DIR)
 	$(CXX) $(CFLAGS) $(INCLUDE_DIRS) -c -o $@ $<
 
 $(OBJ_DIR)/%.o: ./%.cpp Makefile
-	@echo "build : $< .. $@  ,, $^"
+	@echo "build : $< ..."
 	@mkdir -p $(OBJ_DIR)
 	$(CXX) $(CFLAGS) $(INCLUDE_DIRS) -c -o $@ $<
 
 $(OUTPUT_DIR)/%.pexe: $(OBJ_DIR)/%.o $(OBJS)
-	@echo "build : $< .. $@  ,, $^"
+	@echo "generating : $@ ..."
 	$(CXX) -o$@ $^ $(LINK_DIRS) $(LDFLAGS) 
+
+HOST := "192.168.2.52"
+USER := "user"
+PASS := "user"
+REMOTE_PATH := "/mnt/jffs/usr/"
 
 .PHONY: write
 write: $(EXES)
-	scp $(OUTPUT_DIR)/*.pexe user@server:/path/to/destination
+	scp $(OUTPUT_DIR)/*.pexe $(USER)@$(HOST):$(REMOTE_PATH)
 
 clean:
 	-rm -f *.o
