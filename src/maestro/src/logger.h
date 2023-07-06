@@ -1,7 +1,12 @@
 #pragma once
 
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
 #include <chrono>
 #include <ctime>
+
 #if 0
 #include <filesystem>
 #else
@@ -11,10 +16,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <string>
 
 #include "../external/spdlog/include/spdlog/sinks/basic_file_sink.h"
 #include "../external/spdlog/include/spdlog/sinks/stdout_color_sinks.h"

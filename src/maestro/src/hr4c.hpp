@@ -1,5 +1,3 @@
-#include "mmcpplib.h"
-
 #include <MMC_definitions.h>
 #include <iostream>
 #include <pthread.h>
@@ -21,23 +19,16 @@
 #include <MMC_host_comm_API.h>
 
 #include "TorqueControl.hpp"
+#include "get_cmmc_exception_error_message.hpp"
+#include "../../common/communication_const.hpp"
 
 void MainInit();
 void MachineSequences();
 void MainClose();
-void BackgroundProcesses();
-void MachineSequencesClose();
-void MachineSequencesTimer(int iSig);
-void ReadAllInputData();
-void WriteAllOutputData();
-int OnRunTimeError(const char* msg, unsigned int uiConnHndl, unsigned short usAxisRef, short sErrorID, unsigned short usStatus);
 void TerminateApplication(int iSigNum);
-void Emergency_Received(unsigned short usAxisRef, short sEmcyCode);
-void ModbusWrite_Received();
 int CallbackFunc(unsigned char* recvBuffer, short recvBufferSize, void* lpsock);
 
 extern bool giTerminate;  // Flag to request program termination
-
 extern MMC_CONNECT_HNDL gConnHndl; // Connection Handle
 extern CMMCConnection cConn;
 extern CMMCHostComm cHost;

@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
 
   hr4c::AxisInterface axis(0);
 
-  axis.poweron();
+  // axis.poweron();
 
   while(!kbhit()) {
     axis.update_sensor();

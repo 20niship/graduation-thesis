@@ -24,11 +24,14 @@ PROJECTS := $(wildcard ./*.cpp)
 OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 EXES := $(patsubst ./%.cpp,$(OUTPUT_DIR)/%.pexe,$(PROJECTS))
 
+SRC_HEADERS := $(wildcard $(SRC_DIR)/*.hpp)
+MAIN_HEADERS := $(wildcard ./*.hpp)
+
 .SILENT:
 
 all: $(EXES) $(OBJS)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp Makefile
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp Makefile $(SRC_HEADERS)
 	@echo "build : $< ..."
 	@mkdir -p $(OBJ_DIR)
 	$(CXX) $(CFLAGS) $(INCLUDE_DIRS) -c -o $@ $<
@@ -38,7 +41,7 @@ $(OBJ_DIR)/%.o: ./%.cpp Makefile
 	@mkdir -p $(OBJ_DIR)
 	$(CXX) $(CFLAGS) $(INCLUDE_DIRS) -c -o $@ $<
 
-$(OUTPUT_DIR)/%.pexe: $(OBJ_DIR)/%.o $(OBJS)
+$(OUTPUT_DIR)/%.pexe: $(OBJ_DIR)/%.o $(OBJS) $(MAIN_HEADERS)
 	@echo "generating : $@ ..."
 	$(CXX) -o$@ $^ $(LINK_DIRS) $(LDFLAGS) 
 
@@ -52,6 +55,6 @@ write: $(EXES)
 	scp $(OUTPUT_DIR)/*.pexe $(USER)@$(HOST):$(REMOTE_PATH)
 
 clean:
-	-rm -f *.o
+	rm -f $(OUTPUT_DIR)/*.pexe $(OBJ_DIR)/*.o
 
 

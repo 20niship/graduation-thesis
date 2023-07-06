@@ -1,4 +1,4 @@
-#include "common.h"
+#include "hr4c.hpp"
 
 #define FALSE 0
 #define TRUE 1
@@ -24,6 +24,11 @@ MMC_MODBUSWRITEHOLDINGREGISTERSTABLE_OUT mbus_write_out;
 bool MBUS_PACKET_FLAG = false;
 #define MBUS_CONNCETION_SUCESS_LIM 10  // about 0.1sec
 #define MBUS_CONNCETION_TIMEOUT_LIM 10 // about 0.1sec
+
+void ReadAllInputData();
+int OnRunTimeError(const char* msg, unsigned int uiConnHndl, unsigned short usAxisRef, short sErrorID, unsigned short usStatus);
+void Emergency_Received(unsigned short usAxisRef, short sEmcyCode);
+void ModbusWrite_Received();
 
 void MainInit() {
   gConnHndl = cConn.ConnectIPCEx(0x7fffffff, (MMC_MB_CLBK)CallbackFunc);
@@ -83,21 +88,19 @@ void EnableMachineSequencesTimer(int TimerCycle) {
 void MachineSequences() {
   EnableMachineSequencesTimer(TIMER_CYCLE);
   while(!giTerminate) {
-    MachineSequencesTimer(0);
-    BackgroundProcesses();
+    // if(giTerminate) return;
+    ReadAllInputData();
+
+    mbus_write_in.startRef = MODBUS_UPDATE_START_INDEX; // index of start write modbus register.
+    mbus_write_in.refCnt   = MODBUS_UPDATE_CNT;         // number of indexes to write
+
+    update();
+
+    // send modbus data!
+    cHost.MbusWriteHoldingRegisterTable(mbus_write_in);
     usleep(SLEEP_TIME);
   }
 }
-
-void BackgroundProcesses() {
-  // const auto time   = std::chrono::system_clock::now();
-  // auto hour         = std::chrono::duration_cast<std::chrono::hours>(time.time_since_epoch()).count() % 24;
-  // auto minute       = std::chrono::duration_cast<std::chrono::minutes>(time.time_since_epoch()).count() % 60;
-  // auto seconds      = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count() % 60;
-  // auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(time.time_since_epoch()).count() % 1000;
-  // std::cout << "[time] " << hour << ":" << minute << ":" << seconds << ":" << milliseconds << std::endl;
-}
-
 
 void ReadAllInputData() {
   MMC_MODBUSREADHOLDINGREGISTERSTABLE_OUT mbus_read_out;
@@ -106,20 +109,6 @@ void ReadAllInputData() {
   /* control_a1.set_GainAgan(mbus_read_out.regArr, eKP_pos); */
   return;
 }
-
-void WriteAllOutputData() {
-  //
-  //	Here should come the code to write/send all ouput data
-  //
-  mbus_write_in.startRef = MODBUS_UPDATE_START_INDEX; // index of start write modbus register.
-  mbus_write_in.refCnt   = MODBUS_UPDATE_CNT;         // number of indexes to write
-  //
-  // TODO: Prepare Data to be writen to Modbus.
-  //
-  cHost.MbusWriteHoldingRegisterTable(mbus_write_in);
-  return;
-}
-
 
 int CallbackFunc(unsigned char* recvBuffer, short recvBufferSize, void* lpsock) {
   spdlog::error("CallbackFunc called");
@@ -182,11 +171,3 @@ void ModbusWrite_Received() {
 }
 
 void Emergency_Received(unsigned short usAxisRef, short sEmcyCode) { spdlog::error("Emergency Message Received on Axis %d. Code: %x\n", usAxisRef, sEmcyCode); }
-
-void MachineSequencesTimer(int iSig) {
-  if(giTerminate) return; //	Avoid reentrance of this time function
-  ReadAllInputData();
-  update();
-  WriteAllOutputData();
-  return;
-}

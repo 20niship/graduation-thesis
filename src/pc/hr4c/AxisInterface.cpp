@@ -4,6 +4,8 @@
 #include <hr4c/ModbusClient.hpp>
 #include <modbus/modbus.h>
 
+#include "../../common/communication_const.hpp"
+
 using namespace std;
 
 namespace hr4c {
@@ -45,9 +47,9 @@ void AxisInterface::update_sensor() {
     exit(1);
   }
   server->read_axis_data();
-  pos = server->read_axis_data<int32_t>(m_modbus_id * 8 + 0);
-  vel = server->read_axis_data<int32_t>(m_modbus_id * 8 + 2);
-  cur = server->read_axis_data<int32_t>(m_modbus_id * 8 + 4);
+  pos = server->read_axis_data<int32_t>(eAx1 + 0);
+  vel = server->read_axis_data<int32_t>(eAx1 + 2);
+  cur = server->read_axis_data<int32_t>(eAx1 + 4);
 }
 
 double AxisInterface::get_motorOtptAxis_rad() { return (pos - m_start_pos) * (2.0 * M_PI / 4095.) + enc0_slave_rad; }

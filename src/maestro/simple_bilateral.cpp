@@ -1,20 +1,8 @@
-#include "mmcpplib.h"
-#include "src/TorqueControl.hpp"
-#include "src/common.h"
-#include "src/get_cmmc_exception_error_message.hpp"
-
 #include "common.hpp"
+#include "src/hr4c.hpp"
 #include <MMC_definitions.h>
-#include <chrono>
-#include <cmath>
-#include <ctime>
-#include <iomanip>
 #include <iostream>
-#include <pthread.h>
-#include <signal.h>
-#include <sys/time.h>
-
-#include "src/logger.h"
+#include "common.hpp"
 #include <semaphore.h>
 
 TorControls control_a1, control_a2;

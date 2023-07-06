@@ -1,8 +1,4 @@
-#include "mmcpplib.h"
 #include "src/TorqueControl.hpp"
-#include "src/common.h"
-#include "src/get_cmmc_exception_error_message.hpp"
-
 #include <MMC_definitions.h>
 #include <iostream>
 #include <pthread.h>
@@ -16,6 +12,7 @@
 #include <iostream>
 
 #include "common.hpp"
+#include "src/hr4c.hpp"
 #include "src/logger.h"
 #include <semaphore.h>
 
@@ -24,16 +21,7 @@
 TorControls control_a1, control_a2;
 
 int main(int argc, char* argv[]) {
-  if(argc != 3) {
-    std::cout << "Usage: " << argv[0] << " <kp> <kd>" << std::endl;
-    return 0;
-  }
-
-  float kp = std::stof(argv[1]);
-  float kd = std::stof(argv[2]);
-
   init_logger();
-  spdlog::info("kp: {} kd: {}", kp, kd);
   try {
     MainInit();
     control_a1 = TorControls(166, 0.095, 1.5, 2000);
@@ -50,7 +38,6 @@ int main(int argc, char* argv[]) {
     }
 
     std::cout << "torque control poweron" << std::endl;
-
     MachineSequences();
     return 0;
   } catch(CMMCException excp) {
@@ -89,6 +76,11 @@ void terminateApp() {
   control_a2.abort();
 }
 
+template <typename T> void send_n_to16bit(const T arg_value, int16_t* ptr, int index) {
+  const void* p = static_cast<const void*>(&arg_value);
+  for(size_t i = 0; i < sizeof(T) / sizeof(int16_t); i++) ptr[index + i] = ((int16_t*)p)[i];
+};
+
 void update() {
   if(giTerminate) return; //	Avoid reentrance of this time function
   static unsigned long nFrames = 0;
@@ -98,6 +90,18 @@ void update() {
   auto pos = control_a2.get_pos();
   control_a1.set_target(pos);
   control_a1.p_pi_controlAxis();
+
+  {
+    int32_t tmp_pos = control_a1.get_pos();
+    int32_t tmp_vel = control_a1.get_vel();
+    int32_t tmp_tor = control_a1.get_tor_order(); // mA
+    int start_ref   = hr4c::eAx1;
+    send_n_to16bit<int32_t>(tmp_pos, mbus_write_in.regArr, start_ref);
+    send_n_to16bit<int32_t>(tmp_vel, mbus_write_in.regArr, start_ref + 2);
+    send_n_to16bit<int32_t>(tmp_tor, mbus_write_in.regArr, start_ref + 4);
+
+    start_ref   = hr4c::eAx2;
+  }
 
   if(isKeyPressed()) {
     spdlog::info("Terminate app by key press");
