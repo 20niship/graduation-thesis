@@ -1,7 +1,7 @@
 #include <cmath>
 
 #include <hr4c/AxisInterface.hpp>
-#include <hr4c/ModbusMaster.hpp>
+#include <hr4c/ModbusClient.hpp>
 #include <modbus/modbus.h>
 
 using namespace std;

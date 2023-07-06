@@ -22,8 +22,6 @@ set(CMAKE_CXX_BYTE_ORDER LITTLE_ENDIAN)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_EXE_LINKER_FLAGS  "-Wl,--hash-style=sysv" )
-
 project(ExampleProject)
 
 set(CMAKE_EXECUTABLE_SUFFIX ".pexe")
@@ -52,9 +50,6 @@ file(GLOB LIB_MAESTRO_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 )
   
-# add_library(my-maestro ${LIB_MAESTRO_SOURCES})
-# target_link_libraries(my-maestro Threads::Threads)
-
 file(GLOB SOURCES 
   ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
 )
@@ -70,52 +65,56 @@ if(WIN32)
   )
 else()
   link_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib
+    # ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib
     ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platform
   )
 endif()
 
 set (CMAKE_EXE_LINKER_FLAGS "-Wl,-Bstatic -lMMC_APP_LIB -lMMCPPLIB -Wl,-Bdynamic -lpthread -lrt")
 
-foreach(sourcefile ${SOURCES})
-  get_filename_component(name ${sourcefile} NAME)
-  add_executable(${name} ${sourcefile} ${LIB_MAESTRO_SOURCES})
-  # target_link_libraries(${name} Threads::Threads ${MAESTRO_LIBS})
-  add_custom_command(TARGET ${name} POST_BUILD
-  COMMAND 
-    ${CMAKE_CXX_COMPILER} -otest_project2.pexe 
-    CMakeFiles/test_project2.cpp.dir/test_project2.cpp.o 
-    CMakeFiles/test_project2.cpp.dir/src/common.cpp.o 
-    CMakeFiles/test_project2.cpp.dir/src/TorqueControl.cpp.o 
-    -L"${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/lib/platinum"
-    # -LC:/GMAS/lib/platinum/ 
-    -Wl,-Bstatic -lMMC_APP_LIB -lMMCPPLIB -Wl,-Bdynamic -lpthread -lrt
-  COMMENT "Linking to pexe"
-  )
-endforeach()
-
-# make writeするとscpしてデータを送信してくれる
-add_custom_target(write-transfer DEPENDS test_project2.pexe)
-add_custom_target(write DEPENDS write-transfer)
 set(HOST "192.168.2.52")
 set(USER "user")
 set(PASS "user")
-set(REMOTE_PATH "/mnt/jffs/usr/main.pexe")
+set(REMOTE_PATH "/mnt/jffs/usr/")
 
-# ファイルを転送するためのカスタムコマンド
-add_custom_command(
-  TARGET write-transfer
-  POST_BUILD
-  COMMAND 
-   scp test_project2.pexe ${USER}@${HOST}:${REMOTE_PATH}
-  COMMENT "Transferring file via SCP"
+set(WRITE_TARGET "")
+
+# add_library(my-maestro ${LIB_MAESTRO_SOURCES})
+foreach(sourcefile ${SOURCES})
+  get_filename_component(name ${sourcefile} NAME)
+  string(REPLACE ".cpp" ".cmake" TARGET_NAME ${name})
+  string(REPLACE ".cpp" ".cmake" REMOTE_TARGET_NAME ${name})
+
+  add_library(${name} OBJECT ${sourcefile} ${LIB_MAESTRO_SOURCES})
+export(
+    TARGETS ${name}
+    FILE ${TARGET_NAME}
 )
 
-add_custom_command(
-  TARGET write-transfer
-  POST_BUILD
-  COMMAND 
-   ssh ${USER}@${HOST} chmod +x ${REMOTE_PATH}
-  COMMENT "Transferring file via SCP"
-)
+  # target_link_libraries(${name} Threads::Threads my-maestro)
+  # set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME "better_name")
+  # set_target_properties(${name} PROPERTIES OUTPUT_NAME ${name} SUFFIX ".pexe")
+  message("new : ${TARGET_NAME}  <-- ${sourcefile}")
+
+  add_custom_target(write-transfer-${TARGET_NAME} DEPENDS ${name})
+  add_custom_target(write-${TARGET_NAME} DEPENDS write-transfer-${TARGET_NAME})
+  add_custom_command(
+    TARGET write-transfer-${TARGET_NAME}
+    POST_BUILD
+    COMMAND 
+    scp ${TARGET_NAME} ${USER}@${HOST}:${REMOTE_PATH}/${TARGET_NAME}
+    COMMENT "Transferring via SCP  : ${TARGET_NAME}"
+  )
+  add_custom_command(
+    TARGET write-${TARGET_NAME}
+    POST_BUILD
+    COMMAND 
+    ssh ${USER}@${HOST} chmod +x ${REMOTE_PATH}/${REMOTE_TARGET_NAME}
+    COMMENT "chomod +x ${name}"
+  )
+
+  set(WRITE_TARGET ${WRITE_TARGET} "write-${REMOTE_TARGET_NAME}")
+endforeach()
+
+add_custom_target(write DEPENDS ${WRITE_TARGET} COMMENT "send all pexe files")
 

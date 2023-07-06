@@ -15,39 +15,11 @@
 #include <iomanip>
 #include <iostream>
 
+#include "common.hpp"
 #include "src/logger.h"
 #include <semaphore.h>
 
 #include <iostream>
-#include <termios.h>
-#include <unistd.h>
-
-bool isKeyPressed()
-{
-    struct termios oldSettings, newSettings;
-    tcgetattr(STDIN_FILENO, &oldSettings);
-    newSettings = oldSettings;
-    newSettings.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &newSettings);
-
-    bool keyPressed = false;
-    fd_set readSet;
-    FD_ZERO(&readSet);
-    FD_SET(STDIN_FILENO, &readSet);
-    struct timeval timeout;
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 0;
-
-    if (select(STDIN_FILENO + 1, &readSet, NULL, NULL, &timeout) > 0)
-    {
-        char c;
-        read(STDIN_FILENO, &c, 1);
-        keyPressed = true;
-    }
-
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldSettings);
-    return keyPressed;
-}
 
 TorControls control_a1, control_a2;
 
@@ -61,31 +33,23 @@ int main(int argc, char* argv[]) {
   float kd = std::stof(argv[2]);
 
   init_logger();
-
   spdlog::info("kp: {} kd: {}", kp, kd);
   try {
     MainInit();
-    control_a1 = TorControls(166, 0.095 * std::pow(10, -5), 1.5, 2000);
-    control_a2 = TorControls(166, 0.095 * std::pow(10, -5), 1.5, 2000);
+    control_a1 = TorControls(166, 0.095, 1.5, 2000);
+    control_a2 = TorControls(166, 0.095, 1.5, 2000);
 
-    if(!control_a1.init("a01", gConnHndl)){
+    if(!control_a1.init("a01", gConnHndl)) {
       spdlog::error("torque control init failed");
       goto terminate;
     }
 
-    if(!control_a2.init("a02", gConnHndl)){
+    if(!control_a2.init("a02", gConnHndl)) {
       spdlog::error("torque control init failed");
       goto terminate;
     }
 
     std::cout << "torque control poweron" << std::endl;
-    if(!control_a1.poweron()) {
-      spdlog::error("torque control poweron failed");
-      goto terminate;
-    }
-
-    control_a1.set_KP(kp);
-    control_a1.set_KD(kd);
 
     MachineSequences();
     return 0;
@@ -115,12 +79,15 @@ int main(int argc, char* argv[]) {
 
 terminate:
   MainClose();
-  giTerminate=true;
+  giTerminate = true;
   spdlog::info("MainClose end");
   return 1;
 }
 
-void terminateApp() { control_a1.abort(); control_a2.abort();}
+void terminateApp() {
+  control_a1.abort();
+  control_a2.abort();
+}
 
 void update() {
   if(giTerminate) return; //	Avoid reentrance of this time function

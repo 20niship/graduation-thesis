@@ -16,11 +16,9 @@
 #include <sstream>
 #include <string>
 
-#if 1
 #include "../external/spdlog/include/spdlog/sinks/basic_file_sink.h"
 #include "../external/spdlog/include/spdlog/sinks/stdout_color_sinks.h"
 #include "../external/spdlog/include/spdlog/spdlog.h"
-
 
 inline std::string get_logger_filename() {
   auto now       = std::chrono::system_clock::now();
@@ -56,51 +54,6 @@ inline void init_logger() {
     std::cout << "Log failed: " << std::endl;
   }
 }
-#else
-
-namespace spdlog{
-static constexpr auto prefix_i = "";
-static constexpr auto prefix_d = "\x1b[32m";
-static constexpr auto prefix_w = "\x1b[33m";
-static constexpr auto prefix_e = "\x1b[31m";
-
-static constexpr auto suffix_e = "\x1b[0m";
-
-static constexpr auto type_i = "[ INF ] ";
-static constexpr auto type_d = "[ DBG ] ";
-static constexpr auto type_w = "[ WAR ] ";
-static constexpr auto type_e = "[ ERR ] ";
-
-#define LOGI std::cout << prefix_i << __FILE__ << " @ " << __LINE__ << type_i
-#define LOGD std::cout << prefix_d << __FILE__ << " @ " << __LINE__ << type_d
-#define LOGW std::cout << prefix_w << __FILE__ << " @ " << __LINE__ << type_w
-#define LOGE std::cout << prefix_e << __FILE__ << " @ " << __LINE__ << type_e
-#define LEND suffix_e << std::endl
-
-inline void error(const std::string &msg,  ...){
-  LOGE << msg << LEND;
-}
-inline void error(const std::string&msg, const std::string&hoge){
-  error(msg + ", " + hoge);
-}
-inline void error(const std::string&msg, const char*hoge){
-  error(msg + ", " + hoge);
-}
-inline void warn(const std::string &msg,  ...){
-  LOGW << msg << LEND;
-}
-inline void info(const std::string &msg,  ...){
-  std::cout << msg << std::endl;
-}
-inline void info(const std::string&msg, const std::string&hoge){
-  info(msg + ", " + hoge);
-}
-
-inline void debug(const std::string &msg,  ...){
-  LOGD << msg << LEND;
-}
-}
-#endif
 
 #define DISP(X) std::cout << #X << " = " << X << std::endl;
 

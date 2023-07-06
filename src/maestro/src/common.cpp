@@ -8,8 +8,8 @@
 #define MODBUS_READ_CNT 16           // Number of registers to read
 #define MODBUS_UPDATE_START_INDEX 16 // Start of Modbus write address (update to host)
 #define MODBUS_UPDATE_CNT 16         // Number of registers to update
-#define SLEEP_TIME 2000             // Sleep time of the backround idle loop, in micro seconds
-#define TIMER_CYCLE 5               // Cycle time of the main sequences timer, in ms
+#define SLEEP_TIME 2000              // Sleep time of the backround idle loop, in micro seconds
+#define TIMER_CYCLE 5                // Cycle time of the main sequences timer, in ms
 
 #define FIRST_SUB_STATE 1
 
@@ -102,6 +102,8 @@ void BackgroundProcesses() {
 void ReadAllInputData() {
   MMC_MODBUSREADHOLDINGREGISTERSTABLE_OUT mbus_read_out;
   cHost.MbusReadHoldingRegisterTable(MODBUS_READ_OUTPUTS_INDEX, MODBUS_READ_CNT, mbus_read_out);
+  /* control_a1.set_CommandFromHost(mbus_read_out.regArr, eCommand1); */
+  /* control_a1.set_GainAgan(mbus_read_out.regArr, eKP_pos); */
   return;
 }
 
@@ -123,7 +125,7 @@ int CallbackFunc(unsigned char* recvBuffer, short recvBufferSize, void* lpsock) 
   spdlog::error("CallbackFunc called");
   spdlog::error("  recvBufferSize = {}", recvBufferSize);
   spdlog::error("   Event  type = {}", (int)recvBuffer[1]);
-  for(size_t i = 0; i < recvBufferSize; i++) spdlog::warn(" buf[{}] = {}", i, (int)recvBuffer[i]);
+  for(auto i = 0; i < recvBufferSize; i++) spdlog::warn(" buf[{}] = {}", i, (int)recvBuffer[i]);
   spdlog::error("  lpsok = {}", lpsock);
 
   std::string error_msg = "unknown error";
@@ -179,9 +181,7 @@ void ModbusWrite_Received() {
   spdlog::info("Modbus Write Received");
 }
 
-void Emergency_Received(unsigned short usAxisRef, short sEmcyCode) { 
-  spdlog::error("Emergency Message Received on Axis %d. Code: %x\n", usAxisRef, sEmcyCode);
-}
+void Emergency_Received(unsigned short usAxisRef, short sEmcyCode) { spdlog::error("Emergency Message Received on Axis %d. Code: %x\n", usAxisRef, sEmcyCode); }
 
 void MachineSequencesTimer(int iSig) {
   if(giTerminate) return; //	Avoid reentrance of this time function

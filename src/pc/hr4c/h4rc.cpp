@@ -1,5 +1,5 @@
 #include <hr4c/AxisInterface.hpp>
-#include <hr4c/ModbusMaster.hpp>
+#include <hr4c/ModbusClient.hpp>
 #include <hr4c/h4rc.hpp>
 #include <hr4c/robot.hpp>
 #include <hr4c/logger.hpp>

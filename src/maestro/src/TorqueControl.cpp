@@ -10,6 +10,7 @@
 #define WAIT_SLEEP_MILLI(WAIT_MILLI_SEC) usleep(WAIT_MILLI_SEC * 1000);
 #endif
 
+#if 0
 static int WaitFbDone(MMC_CONNECT_HNDL ComHndl, unsigned int break_state, CMMCSingleAxis* sng_axis) {
   int end_of = 0;
   int iCount = 0;
@@ -31,12 +32,13 @@ static int WaitFbDone(MMC_CONNECT_HNDL ComHndl, unsigned int break_state, CMMCSi
   }
   return 0;
 }
+#endif
 
 TorControls::TorControls(double kp_pos, double kp_vel, double ki_vel, double curLimHard) {
   // TODO Auto-generated constructor stub
-  kp = kp_pos / (2.0 * M_PI); // [rad/s] to [/s]
-  kd = kp_vel * 1000.;        // [A/(cnt/s)] to [mA/(cnt/s)]
-  ki = 0; //ki_vel / 1000.;        // [Hz] = [1/s] to [1/ms]
+  kp                 = kp_pos / (2.0 * M_PI); // [rad/s] to [/s]
+  kd                 = kp_vel * 1000.;        // [A/(cnt/s)] to [mA/(cnt/s)]
+  ki                 = 0;                     // ki_vel / 1000.;        // [Hz] = [1/s] to [1/ms]
   tor_order_integral = 0;
   torLimFlag         = false;
 }
@@ -73,21 +75,20 @@ return;
 #endif
   this->update();
 
-  pos_error= (target_pos - now_pos);
-  const double lim_mA  = get_currentLim();
+  pos_error           = (target_pos - now_pos);
+  const double lim_mA = get_currentLim();
 
   const auto up = kp * pos_error;
   const auto ud = kd * (pos_error - last_pos_error);
-  const auto ui = ki * tor_order_integral;
-
+  // const auto ui = ki * tor_order_integral;
   // if(torLimFlag == false) {
   //   tor_order_integral += ki * (v_order - now_vel);
   // }
 
-  tor_order = up + ud ; //+ ui;
+  tor_order = up + ud; //+ ui;
   tor_order = std::min(std::max(tor_order, -lim_mA), lim_mA);
   std::cout << "p " << now_pos << " \t v " << now_vel << " \t t " << target_pos << " \t [tor] " << tor_order << " [lim] " << lim_mA << std::endl;
-  axis.MoveTorque(tor_order, 5.0 * pow(10, 6), 1.0 * pow(10, 8), MC_ABORTING_MODE);
+  axis.MoveTorque(tor_order, 5.0e6, 1.0 * 1e8, MC_ABORTING_MODE);
 
   last_pos_error = pos_error;
 
@@ -155,7 +156,7 @@ bool TorControls::poweroff() {
 
 void TorControls::abort() {
   spdlog::info("stop axis={}", m_axisName);
-  if(is_power_on){
+  if(is_power_on) {
     axis.Stop();
     spdlog::info("poweroff axis={}", m_axisName);
     axis.PowerOff();
@@ -163,7 +164,7 @@ void TorControls::abort() {
   spdlog::info("abort axis={}", m_axisName);
 }
 
-void TorControls::goto_home(){
+void TorControls::goto_home() {
   spdlog::info("homing....");
   axis.MoveAbsolute(0, 1000000, 1000000, MC_BUFFERED_MODE);
 }
