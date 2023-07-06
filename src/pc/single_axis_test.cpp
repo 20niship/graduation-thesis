@@ -21,11 +21,7 @@ std::tuple<std::string, int> get_ip_port(const std::string& tomlfile) {
 }
 
 int main(int argc, char* argv[]) {
-  if(argc != 2) {
-    std::cout << "Usage: " << argv[0] << " <filename>" << std::endl;
-    return 1;
-  }
-  auto fname      = std::string(argv[1]);
+  auto fname      = (argc == 2) ? argv[1] : "../config.toml";
   auto [ip, port] = get_ip_port(fname);
 
   auto res = hr4c::start(ip, port);
@@ -42,7 +38,9 @@ int main(int argc, char* argv[]) {
   while(!kbhit()) {
     axis.update_sensor();
     auto pos = axis.get_pos();
-    std::cout << "pos: " << pos << std::endl;
+    auto v = axis.get_vel();
+    auto c = axis.get_cur();
+    spdlog::info("pos: {}, vel: {}, cur: {}", pos, v, c);
   }
 
   hr4c::terminate();

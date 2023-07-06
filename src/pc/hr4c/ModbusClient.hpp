@@ -21,7 +21,7 @@ private:
   modbus_t* m_ctx;
   const std::string m_devicename = "/dev/ttyUSB0";
   const int m_slave_id           = 1;
-  const int m_register_address   = 8;
+  const int m_register_address   = 0;
 
   std::array<uint16_t, MODBUS_AXIS_DATA_NUM> m_tab_reg;
   std::array<uint16_t, MODBUS_COMMAND_DATA_NUM> m_cmd_reg;
@@ -44,11 +44,21 @@ public:
 
   template <typename T> T read_axis_data(int index) const {
     assert(index < MODBUS_AXIS_DATA_NUM);
-    return static_cast<T>(m_tab_reg[index]);
+    T value;
+    int16_t* ptr = static_cast<int16_t*>((void*)&value);
+    for(int i = 0; i < sizeof(T) / sizeof(uint16_t); i++) {
+      *(ptr + i) = m_tab_reg[index + i];
+    }
+    return value;
   }
   template <typename T> T read_command_data(int index) const {
     assert(index < MODBUS_COMMAND_DATA_NUM);
-    return static_cast<T>(m_cmd_reg[index]);
+    T value;
+    int16_t* ptr = static_cast<int16_t*>((void*)&value);
+    for(int i = 0; i < sizeof(T) / sizeof(uint16_t); i++) {
+      *(ptr + i) = m_cmd_reg[index + i];
+    }
+    return value;
   }
 
   template <typename T> void set_axis_data(int index, const T data) {

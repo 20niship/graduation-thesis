@@ -47,9 +47,9 @@ void AxisInterface::update_sensor() {
     exit(1);
   }
   server->read_axis_data();
-  pos = server->read_axis_data<int32_t>(eAx1 + 0);
-  vel = server->read_axis_data<int32_t>(eAx1 + 2);
-  cur = server->read_axis_data<int32_t>(eAx1 + 4);
+  pos = server->read_axis_data<int32_t>(eAx1 + eActualPos);
+  vel = server->read_axis_data<int32_t>(eAx1 + eActualVel);
+  cur = server->read_axis_data<int32_t>(eAx1 + eActualTor);
 }
 
 double AxisInterface::get_motorOtptAxis_rad() { return (pos - m_start_pos) * (2.0 * M_PI / 4095.) + enc0_slave_rad; }
