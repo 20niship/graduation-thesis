@@ -3,6 +3,8 @@
 
 #include <sys/time.h>
 #include <sys/types.h>
+#include <iostream>
+
 inline bool kbhit(void) {
   struct timeval tv;
   fd_set read_fd;

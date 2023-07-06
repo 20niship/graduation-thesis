@@ -1,13 +1,17 @@
 #pragma once
+#include <iostream>
+
+#include <hr4c/AxisInterface.hpp>
+#include <hr4c/robotbase.hpp>
 
 namespace hr4c {
-int hr4capi_open(char*, int, int, const char*);
-int hr4capi_close(int);
-int hr4capi_start(int);
-int hr4capi_stop(int);
+
+bool start(const std::string& ip, int port);
+bool terminate();
+bool ping();
+
 void hr4capi_set_joint_reference(int, double*, int*);
 void hr4capi_set_joint_trajectory(int, double*, double, int, int*);
-void hr4capi_get_joint_angle(int, double*);
 void hr4capi_wait_interpolation(int);
 void hr4capi_set_control_mode(int, int*);
 void hr4capi_start_logging(int);
@@ -36,7 +40,6 @@ void hr4capi_get_motion_list(int, char*);
 int hr4capi_clear_motion(int, int);
 void hr4capi_clear_all_motions(int);
 void hr4capi_controller_shutdown(int);
-int hr4capi_ping(int);
 int hr4capi_update_controller(int, const char*);
 void hr4capi_get_all_sensor_info(int, double*, double*, double*, double*, int*, int*);
 void hr4capi_enable_zerog_mode(int, int);

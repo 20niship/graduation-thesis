@@ -7,3 +7,9 @@
 [submodule "src/maestro/external/spdlog"]
 	path = src/maestro/external/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "src/pc/hr4c/cpptoml"]
+	path = src/pc/hr4c/cpptoml
+	url = https://github.com/skystrife/cpptoml.git
+[submodule "src/pc/hr4c/spdlog"]
+	path = src/pc/hr4c/spdlog
+	url = https://github.com/gabime/spdlog.git

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-project(h4rc)
+project(hr4c)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS "on") # compile_commands.json作成
 
@@ -13,21 +13,24 @@ elseif(${COMPILER_SUPPORTS_CXX2A})
 endif()
 
 find_package(Threads REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 include_directories(
-  ${OpenCV_INCLUDE_DIRS} 
   ${CMAKE_CURRENT_SOURCE_DIR}
-  # ${CMAKE_CURRENT_SOURCE_DIR}/h4rc/libmodbus/src
+  ${CMAKE_CURRENT_SOURCE_DIR}/hr4c/cpptoml/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/hr4c/spdlog/include
+  ${EIGEN3_INCLUDE_DIR}
 )
 
 set(ALL_LINKS 
   Threads::Threads
+  modbus
 )
 
-file(GLOB H4RC_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/h4rc/*.cpp)
-add_library(h4rc ${H4RC_SOURCE})
-target_link_libraries(h4rc ${ALL_LINKS})
-set(ALL_LINKS ${ALL_LINKS} h4rc)
+file(GLOB hr4c_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/hr4c/*.cpp)
+add_library(hr4c ${hr4c_SOURCE})
+target_link_libraries(hr4c ${ALL_LINKS})
+set(ALL_LINKS ${ALL_LINKS} hr4c)
 
 file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 foreach(path IN LISTS sources)
