@@ -3,13 +3,8 @@
 #define FALSE 0
 #define TRUE 1
 //
-// TODO: Modbus memory map offsets must be updated accordingly.
-#define MODBUS_READ_OUTPUTS_INDEX 0  // Start of Modbus read address
-#define MODBUS_READ_CNT 16           // Number of registers to read
-#define MODBUS_UPDATE_START_INDEX 16 // Start of Modbus write address (update to host)
-#define MODBUS_UPDATE_CNT 16         // Number of registers to update
-#define SLEEP_TIME 2000              // Sleep time of the backround idle loop, in micro seconds
-#define TIMER_CYCLE 5                // Cycle time of the main sequences timer, in ms
+#define SLEEP_TIME 2000 // Sleep time of the backround idle loop, in micro seconds
+#define TIMER_CYCLE 5   // Cycle time of the main sequences timer, in ms
 
 #define FIRST_SUB_STATE 1
 
@@ -91,8 +86,8 @@ void MachineSequences() {
     // if(giTerminate) return;
     ReadAllInputData();
 
-    mbus_write_in.startRef = MODBUS_UPDATE_START_INDEX; // index of start write modbus register.
-    mbus_write_in.refCnt   = MODBUS_UPDATE_CNT;         // number of indexes to write
+    mbus_write_in.startRef = MODBUS_WRITE_IN_INDEX; // index of start write modbus register.
+    mbus_write_in.refCnt   = MODBUS_WRITE_IN_CNT;   // number of indexes to write
 
     update();
 
@@ -104,7 +99,7 @@ void MachineSequences() {
 
 void ReadAllInputData() {
   MMC_MODBUSREADHOLDINGREGISTERSTABLE_OUT mbus_read_out;
-  cHost.MbusReadHoldingRegisterTable(MODBUS_READ_OUTPUTS_INDEX, MODBUS_READ_CNT, mbus_read_out);
+  cHost.MbusReadHoldingRegisterTable(MODBUS_READ_OUTPUT_INDEX, MODBUS_READ_CNT, mbus_read_out);
   /* control_a1.set_CommandFromHost(mbus_read_out.regArr, eCommand1); */
   /* control_a1.set_GainAgan(mbus_read_out.regArr, eKP_pos); */
   return;
@@ -155,14 +150,15 @@ void TerminateApplication(int iSigNum) {
   if(giTerminate) {
     spdlog::error("TerminateApplicaiton関数が複数回呼ばれたのでexitします....");
     exit(0);
+    std::abort();
   }
   spdlog::warn("TerminateApplicaiton called exiting");
   sigignore(SIGALRM);
   terminateApp();
   MainClose();
   // control_a1.abort();
-  exit(0);
   giTerminate = true;
+  std::abort();
 }
 
 void ModbusWrite_Received() {

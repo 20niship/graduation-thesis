@@ -17,8 +17,8 @@ AxisInterface::AxisInterface(int mbusRefId) {
     cout << "ModbusServer is not initialized" << endl;
     exit(1);
   }
-
-  m_start_pos = server->read_axis_data<int>(m_modbus_id * 8 + 0);
+  server->read_axis_data();
+  m_start_pos = server->read_axis_data<int32_t>(eAx1 + 0);
   cout << "init_pos_of_elmo inpt axis :" << m_start_pos << endl;
   enc0_slave_rad_is_loaded = false;
 }

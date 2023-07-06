@@ -1,12 +1,14 @@
 #include <limits>
+
 #include <cpptoml.h>
 
-#include <common.hpp>
-#include <hr4c/h4rc.hpp>
 #include <iostream>
 #include <spdlog/spdlog.h>
 
-auto get_ip_port(const std::string& tomlfile) {
+#include <hr4c/common.hpp>
+#include <hr4c/h4rc.hpp>
+
+std::tuple<std::string, int> get_ip_port(const std::string& tomlfile) {
   auto config = cpptoml::parse_file(tomlfile);
   auto socket = config->get_table("socket");
   auto ip     = socket->get_as<std::string>("ip");
@@ -15,10 +17,10 @@ auto get_ip_port(const std::string& tomlfile) {
     std::cout << "Error: ip or port not found in " << tomlfile << std::endl;
     std::exit(1);
   }
-  return std::make_pair(*ip, *port);
+  return std::make_tuple(*ip, *port);
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char* argv[]) {
   if(argc != 2) {
     std::cout << "Usage: " << argv[0] << " <filename>" << std::endl;
     return 1;

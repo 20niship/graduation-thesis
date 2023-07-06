@@ -37,7 +37,6 @@ int main(int argc, char* argv[]) {
       goto terminate;
     }
 
-    std::cout << "torque control poweron" << std::endl;
     MachineSequences();
     return 0;
   } catch(CMMCException excp) {
@@ -89,7 +88,6 @@ void update() {
   control_a2.update();
   auto pos = control_a2.get_pos();
   control_a1.set_target(pos);
-  control_a1.p_pi_controlAxis();
 
   {
     int32_t tmp_pos = control_a1.get_pos();
@@ -99,7 +97,7 @@ void update() {
     send_n_to16bit<int32_t>(tmp_pos, mbus_write_in.regArr, start_ref);
     send_n_to16bit<int32_t>(tmp_vel, mbus_write_in.regArr, start_ref + 2);
     send_n_to16bit<int32_t>(tmp_tor, mbus_write_in.regArr, start_ref + 4);
-
+    spdlog::info("pos: {}, vel: {}, tor: {}", tmp_pos, tmp_vel, tmp_tor);
     start_ref   = hr4c::eAx2;
   }
 

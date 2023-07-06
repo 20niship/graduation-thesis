@@ -5,7 +5,7 @@
  * tomlファイルでモータ等のデータの指定を行う
  */
 
-#include "common.hpp"
+#include "hr4c/common.hpp"
 
 int main() {
   while(1) {

@@ -1,11 +1,10 @@
-// kbhit
 #pragma once
 
 #include <sys/time.h>
 #include <sys/types.h>
 #include <iostream>
 
-inline bool kbhit(void) {
+inline bool kbhit() {
   struct timeval tv;
   fd_set read_fd;
 
@@ -20,3 +19,4 @@ inline bool kbhit(void) {
 
   return 0;
 }
+
