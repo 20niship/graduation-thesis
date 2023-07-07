@@ -26,7 +26,7 @@ int init_view() {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  window = glfwCreateWindow(640, 480, "ImGui OpenGL3 example", NULL, NULL);
+  window = glfwCreateWindow(1080, 700, "ImGui OpenGL3 example", NULL, NULL);
   glfwMakeContextCurrent(window);
 
   glfwSwapInterval(0); // disable vsync
@@ -41,6 +41,13 @@ int init_view() {
   // Setup ImGui binding
   ImGui_ImplGlfw_InitForOpenGL(window, true);
   ImGui_ImplOpenGL3_Init();
+
+  // start docking
+  ImGuiIO& io = ImGui::GetIO();
+  (void)io;
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+  io.ConfigDockingWithShift = false;
+  io.ConfigDockingNoSplit   = false;
   return 1;
 }
 
