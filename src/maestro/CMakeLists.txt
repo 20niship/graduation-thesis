@@ -22,7 +22,7 @@ project(ExampleProject)
 
 find_package(Threads REQUIRED)
 
-set(EXTRA_INCLUDES 
+set(EXTRA_INCLUDES
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/includes
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/includes/CPP
   ${CMAKE_CURRENT_SOURCE_DIR}/GMAS-elmo-lib/includes/EMBL
@@ -56,10 +56,6 @@ endif()
 
 set (CMAKE_EXE_LINKER_FLAGS "-Wl,-Bstatic -lMMC_APP_LIB -lMMCPPLIB -Wl,-Bdynamic -lpthread -lrt")
 
-set(HOST "192.168.2.52")
-set(USER "user")
-set(REMOTE_PATH "/mnt/jffs/usr/")
-
 file(GLOB LIB_MAESTRO_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 add_library(mahr4c OBJECT ${LIB_MAESTRO_SOURCES})
 
@@ -70,6 +66,10 @@ foreach(sourcefile ${SOURCES})
   add_executable(${TARGET} ${sourcefile})
   target_link_libraries(${TARGET} Threads::Threads mahr4c ${MAESTRO_LIBS})
 endforeach()
+
+set(HOST "192.168.2.52")
+set(USER "user")
+set(REMOTE_PATH "/mnt/jffs/usr/")
 
 add_custom_target(write)
 add_custom_command(
