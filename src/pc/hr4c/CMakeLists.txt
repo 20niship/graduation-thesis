@@ -36,6 +36,7 @@ set(ALL_LINKS
   ${GLFW_LIBRARIES}
   glfw
   ${GLFW_LIBRARY_DIRS}
+  ${CMAKE_DL_LIBS}
 )
 
 file(GLOB hr4c_CORE_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/core/*.cpp)
