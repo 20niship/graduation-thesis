@@ -1,10 +1,10 @@
 #include <cmath>
 
-#include <hr4c/AxisInterface.hpp>
-#include <hr4c/ModbusClient.hpp>
+#include <hr4c/core/AxisInterface.hpp>
+#include <hr4c/core/ModbusClient.hpp>
 #include <modbus/modbus.h>
 
-#include "../../common/communication_const.hpp"
+#include "../../../common/communication_const.hpp"
 
 using namespace std;
 
@@ -24,11 +24,6 @@ AxisInterface::AxisInterface(int mbusRefId) {
 }
 
 AxisInterface::~AxisInterface() {}
-
-void AxisInterface::set_ElmoCmd(int TorCmd, int PosCmd, uint16_t* reg) {
-  /* send_32bit_to_mbus16bit(TorCmd, reg, 0); */
-  /* send_32bit_to_mbus16bit(PosCmd, reg, 2); */
-}
 
 void AxisInterface::set_target_pos(double target) {
   auto server = ModbusClient::Get();

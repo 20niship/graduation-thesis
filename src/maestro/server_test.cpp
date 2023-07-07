@@ -109,7 +109,7 @@ void update() {
     send_n_to16bit<int32_t>(tmp_pos, mbus_write_in.regArr, start_ref + hr4c::eActualPos);
     send_n_to16bit<int32_t>(tmp_vel, mbus_write_in.regArr, start_ref + hr4c::eActualVel);
     send_n_to16bit<int32_t>(tmp_tor, mbus_write_in.regArr, start_ref + hr4c::eActualTor);
-    // spdlog::info("pos: {}, vel: {}, tor: {}", tmp_pos, tmp_vel, tmp_tor);
+    spdlog::info("pos: {}, vel: {}, tor: {}", tmp_pos, tmp_vel, tmp_tor);
 
     start_ref = hr4c::eAx2;
     tmp_pos   = control_a2.get_pos();
@@ -118,14 +118,18 @@ void update() {
     send_n_to16bit<int32_t>(tmp_pos, mbus_write_in.regArr, start_ref + hr4c::eActualPos);
     send_n_to16bit<int32_t>(tmp_vel, mbus_write_in.regArr, start_ref + hr4c::eActualVel);
     send_n_to16bit<int32_t>(tmp_tor, mbus_write_in.regArr, start_ref + hr4c::eActualTor);
-    // spdlog::info("pos: {}, vel: {}, tor: {}", tmp_pos, tmp_vel, tmp_tor);
+    spdlog::info("pos: {}, vel: {}, tor: {}", tmp_pos, tmp_vel, tmp_tor);
   }
 
   {
     auto hoge  = read_n_from16bit<int32_t>(mbus_read_out.regArr, hr4c::eCommand1);
     auto hoge2 = read_n_from16bit<int32_t>(mbus_read_out.regArr, hr4c::eCommand2);
     auto hoge3 = read_n_from16bit<int32_t>(mbus_read_out.regArr, hr4c::eCommand3);
-    spdlog::info("hoge: {}, hoge2: {}, hoge3: {}", hoge, hoge2, hoge3);
+    if(hoge != 0 && hoge2 != 0 && hoge3 != 0) {
+      spdlog::info("received!");
+      spdlog::info("hoge: {}, hoge2: {}, hoge3: {}", hoge, hoge2, hoge3);
+    }
+    for(int i = 0; i < MODBUS_READ_CNT; i++) mbus_read_out.regArr[i] = 0;
   }
 
   if(isKeyPressed()) {

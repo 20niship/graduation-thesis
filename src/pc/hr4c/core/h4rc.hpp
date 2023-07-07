@@ -1,8 +1,8 @@
 #pragma once
 #include <iostream>
 
-#include <hr4c/AxisInterface.hpp>
-#include <hr4c/robotbase.hpp>
+#include <hr4c/core/AxisInterface.hpp>
+#include <hr4c/core/robotbase.hpp>
 #include "../common/communication_const.hpp"
 
 namespace hr4c {

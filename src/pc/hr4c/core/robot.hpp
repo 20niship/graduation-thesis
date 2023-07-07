@@ -4,9 +4,9 @@
 
 #include <Eigen/Dense>
 
-#include <hr4c/AxisInterface.hpp>
-#include <hr4c/ModbusClient.hpp>
-#include <hr4c/h4rc.hpp>
+#include <hr4c/core/AxisInterface.hpp>
+#include <hr4c/core/ModbusClient.hpp>
+#include <hr4c/core/h4rc.hpp>
 
 namespace hr4c {
 

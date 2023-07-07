@@ -13,3 +13,9 @@
 [submodule "src/pc/hr4c/spdlog"]
 	path = src/pc/hr4c/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "src/pc/hr4c/implot"]
+	path = src/pc/hr4c/implot
+	url = https://github.com/epezent/implot.git
+[submodule "src/pc/hr4c/imgui"]
+	path = src/pc/hr4c/imgui
+	url = https://github.com/ocornut/imgui.git

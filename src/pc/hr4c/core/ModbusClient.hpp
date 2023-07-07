@@ -46,7 +46,7 @@ public:
     assert(index < MODBUS_AXIS_DATA_NUM);
     T value;
     int16_t* ptr = static_cast<int16_t*>((void*)&value);
-    for(int i = 0; i < sizeof(T) / sizeof(uint16_t); i++) {
+    for(size_t i = 0; i < sizeof(T) / sizeof(uint16_t); i++) {
       *(ptr + i) = m_tab_reg[index + i];
     }
     return value;
@@ -55,7 +55,7 @@ public:
     assert(index < MODBUS_COMMAND_DATA_NUM);
     T value;
     int16_t* ptr = static_cast<int16_t*>((void*)&value);
-    for(int i = 0; i < sizeof(T) / sizeof(uint16_t); i++) {
+    for(size_t i = 0; i < sizeof(T) / sizeof(uint16_t); i++) {
       *(ptr + i) = m_cmd_reg[index + i];
     }
     return value;
@@ -64,14 +64,14 @@ public:
   template <typename T> void set_axis_data(int index, const T data) {
     assert(index < MODBUS_AXIS_DATA_NUM);
     const void* data_ptr = static_cast<const void*>(&data);
-    for(int i = 0; i < sizeof(T) / sizeof(uint16_t); i++) {
+    for(size_t i = 0; i < sizeof(T) / sizeof(uint16_t); i++) {
       m_tab_reg[index + i] = *(static_cast<const uint16_t*>(data_ptr) + i);
     }
   }
   template <typename T> void set_command_data(int index, const T data) {
     assert(index < MODBUS_AXIS_DATA_NUM);
     const void* data_ptr = static_cast<const void*>(&data);
-    for(int i = 0; i < sizeof(T) / sizeof(uint16_t); i++) {
+    for(size_t i = 0; i < sizeof(T) / sizeof(uint16_t); i++) {
       m_cmd_reg[index + i] = *(static_cast<const uint16_t*>(data_ptr) + i);
     }
   }

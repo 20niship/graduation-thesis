@@ -1,4 +1,4 @@
-#include <hr4c/ModbusClient.hpp>
+#include <hr4c/core/ModbusClient.hpp>
 #include <spdlog/spdlog.h>
 
 namespace hr4c {

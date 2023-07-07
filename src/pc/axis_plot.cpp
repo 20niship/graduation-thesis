@@ -5,9 +5,11 @@
 #include <iostream>
 #include <spdlog/spdlog.h>
 
+#include <hr4c/common.hpp>
+#include <hr4c/core/logger.hpp>
 #include <hr4c/core/ModbusClient.hpp>
 #include <hr4c/core/h4rc.hpp>
-#include <hr4c/common.hpp>
+#include <hr4c/graphics/gui.hpp>
 
 std::tuple<std::string, int> get_ip_port(const std::string& tomlfile) {
   auto config = cpptoml::parse_file(tomlfile);
@@ -21,6 +23,8 @@ std::tuple<std::string, int> get_ip_port(const std::string& tomlfile) {
   return std::make_tuple(*ip, *port);
 }
 
+//-----------------------------------------------------------------------------
+
 int main(int argc, char* argv[]) {
   auto fname      = (argc == 2) ? argv[1] : "../config.toml";
   auto [ip, port] = get_ip_port(fname);
@@ -32,18 +36,29 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  std::vector<hr4c::AxisInterface> axes;
+  struct AxisData {
+    hr4c::AxisInterface axis;
+    std::string name;
+    hr4c::AxisBuffer buf;
+
+    AxisData(int id) : axis(id), name("Axis" + std::to_string(id)) {}
+  };
+
+  std::vector<AxisData> axes;
   axes.emplace_back(hr4c::eAx1);
   axes.emplace_back(hr4c::eAx2);
 
   // axis.poweron();
 
-  while(!kbhit()) {
+  hr4c::init_view();
+  bool loop = true;
+
+  while(!kbhit() && loop) {
     for(auto& axis : axes) {
-      axis.update_sensor();
-      auto pos = axis.get_pos();
-      auto v   = axis.get_vel();
-      auto c   = axis.get_cur();
+      axis.axis.update_sensor();
+      auto pos = axis.axis.get_pos();
+      auto v   = axis.axis.get_vel();
+      auto c   = axis.axis.get_cur();
       spdlog::info("pos: {}, vel: {}, cur: {}", pos, v, c);
     }
     static int i = 0;
@@ -57,6 +72,24 @@ int main(int argc, char* argv[]) {
       k++;
       i = 0;
     }
+
+    loop = hr4c::newframe_gui();
+    {
+      ImGui::Begin("Axis");
+      for(auto& axis : axes) {
+        if(ImGui::CollapsingHeader(axis.name.c_str())) {
+          float pos = static_cast<double>(axis.axis.get_pos()) / 4096;
+          float v   = static_cast<double>(axis.axis.get_vel()) / 4096;
+          float c   = static_cast<double>(axis.axis.get_cur()) / 4096;
+          axis.buf.add(pos, v, c);
+          ImGui::Text("Pos, vel, cur  %f, %f, %f", pos, v, c);
+          hr4c::plot_axis(axis.name, &axis.buf);
+        }
+      }
+      ImGui::End();
+    }
+
+    hr4c::render_gui();
   }
 
   hr4c::terminate();

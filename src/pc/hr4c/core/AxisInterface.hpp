@@ -12,9 +12,9 @@ public:
   void send_cmd(float rad_edata, int Torlim);
   void update_sensor();
 
-  int get_pos() { return pos; }
-  int get_vel() { return vel; }
-  int get_cur() { return cur; }
+  int get_pos() const { return pos; }
+  int get_vel() const { return vel; }
+  int get_cur() const { return cur; }
 
   bool poweron();
   bool poweroff();
@@ -22,6 +22,7 @@ public:
   void set_gain(double kp, double kd, double ki);
   void set_target_pos(double pos);
   double get_motorOtptAxis_rad();
+
 private:
   bool m_dir_positive = true;
   int direction_mode_plus_or_minus;
