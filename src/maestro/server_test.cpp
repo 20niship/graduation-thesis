@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
       goto terminate;
     }
 
-    MachineSequences();
+    StartMain();
     return 0;
   } catch(CMMCException excp) {
     spdlog::error("CMMCException: {}", excp.what());
@@ -75,9 +75,22 @@ void terminateApp() {
   control_a2.abort();
 }
 
+void ModbusWrite_Received() { spdlog::info("Modbus Write Received"); }
+
 template <typename T> void send_n_to16bit(const T arg_value, int16_t* ptr, int index) {
+  assert(sizeof(T) % sizeof(int16_t) == 0);
+  assert(index < MODBUS_WRITE_IN_CNT);
   const void* p = static_cast<const void*>(&arg_value);
   for(size_t i = 0; i < sizeof(T) / sizeof(int16_t); i++) ptr[index + i] = ((int16_t*)p)[i];
+};
+
+template <typename T> T read_n_from16bit(const int16_t* ptr, int index) {
+  assert(sizeof(T) % sizeof(int16_t) == 0);
+  assert(index < MODBUS_READ_CNT);
+  T ret;
+  void* p = static_cast<void*>(&ret);
+  for(size_t i = 0; i < sizeof(T) / sizeof(int16_t); i++) ((int16_t*)p)[i] = ptr[index + i];
+  return ret;
 };
 
 void update() {
@@ -96,7 +109,7 @@ void update() {
     send_n_to16bit<int32_t>(tmp_pos, mbus_write_in.regArr, start_ref + hr4c::eActualPos);
     send_n_to16bit<int32_t>(tmp_vel, mbus_write_in.regArr, start_ref + hr4c::eActualVel);
     send_n_to16bit<int32_t>(tmp_tor, mbus_write_in.regArr, start_ref + hr4c::eActualTor);
-    spdlog::info("pos: {}, vel: {}, tor: {}", tmp_pos, tmp_vel, tmp_tor);
+    // spdlog::info("pos: {}, vel: {}, tor: {}", tmp_pos, tmp_vel, tmp_tor);
 
     start_ref = hr4c::eAx2;
     tmp_pos   = control_a2.get_pos();
@@ -105,7 +118,14 @@ void update() {
     send_n_to16bit<int32_t>(tmp_pos, mbus_write_in.regArr, start_ref + hr4c::eActualPos);
     send_n_to16bit<int32_t>(tmp_vel, mbus_write_in.regArr, start_ref + hr4c::eActualVel);
     send_n_to16bit<int32_t>(tmp_tor, mbus_write_in.regArr, start_ref + hr4c::eActualTor);
-    spdlog::info("pos: {}, vel: {}, tor: {}", tmp_pos, tmp_vel, tmp_tor);
+    // spdlog::info("pos: {}, vel: {}, tor: {}", tmp_pos, tmp_vel, tmp_tor);
+  }
+
+  {
+    auto hoge  = read_n_from16bit<int32_t>(mbus_read_out.regArr, hr4c::eCommand1);
+    auto hoge2 = read_n_from16bit<int32_t>(mbus_read_out.regArr, hr4c::eCommand2);
+    auto hoge3 = read_n_from16bit<int32_t>(mbus_read_out.regArr, hr4c::eCommand3);
+    spdlog::info("hoge: {}, hoge2: {}, hoge3: {}", hoge, hoge2, hoge3);
   }
 
   if(isKeyPressed()) {

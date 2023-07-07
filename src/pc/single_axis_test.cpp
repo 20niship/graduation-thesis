@@ -5,6 +5,7 @@
 #include <iostream>
 #include <spdlog/spdlog.h>
 
+#include <hr4c/ModbusClient.hpp>
 #include <hr4c/common.hpp>
 #include <hr4c/h4rc.hpp>
 
@@ -44,6 +45,17 @@ int main(int argc, char* argv[]) {
       auto v   = axis.get_vel();
       auto c   = axis.get_cur();
       spdlog::info("pos: {}, vel: {}, cur: {}", pos, v, c);
+    }
+    static int i = 0;
+    static int k = 0;
+    if(i++ % 100 == 0) {
+      auto client = hr4c::ModbusClient::Get();
+      client->set_command_data<int16_t>(hr4c::eCommand1, k);
+      client->set_command_data<int32_t>(hr4c::eCommand2, k * 10000);
+      client->set_command_data<int32_t>(hr4c::eCommand3, k * 1e9);
+      client->send_command_data();
+      k++;
+      i = 0;
     }
   }
 

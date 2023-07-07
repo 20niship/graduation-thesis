@@ -23,19 +23,19 @@
 #include "../../common/communication_const.hpp"
 
 void MainInit();
-void MachineSequences();
+void StartMain();
 void MainClose();
 void TerminateApplication(int iSigNum);
-int CallbackFunc(unsigned char* recvBuffer, short recvBufferSize, void* lpsock);
 
 extern bool giTerminate;  // Flag to request program termination
 extern MMC_CONNECT_HNDL gConnHndl; // Connection Handle
 extern CMMCConnection cConn;
 extern CMMCHostComm cHost;
 extern MMC_MODBUSWRITEHOLDINGREGISTERSTABLE_IN mbus_write_in;
-extern MMC_MODBUSWRITEHOLDINGREGISTERSTABLE_OUT mbus_write_out;
-extern bool MBUS_PACKET_FLAG;
+extern MMC_MODBUSREADHOLDINGREGISTERSTABLE_OUT mbus_read_out;
 
-// ---
+// --- userが定義する必要がある関数 ---
 void update();
 void terminateApp();
+void ModbusWrite_Received();
+

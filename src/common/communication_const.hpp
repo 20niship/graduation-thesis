@@ -32,7 +32,9 @@ enum mbusStartIdlist : int {
   eKpVel     = 10,
   eKiVel     = 12,
 
-  eCommand1 = 22, // regArr[eCommand1 ~ eCommand1+2] is pos_r, cur_lim,
+  eCommand1 = 0,
+  eCommand2 = 2,
+  eCommand3 = 4,
 };
 
 } // namespace hr4c

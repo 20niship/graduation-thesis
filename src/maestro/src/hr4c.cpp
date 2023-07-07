@@ -14,16 +14,14 @@ MMC_CONNECT_HNDL gConnHndl; // Connection Handle
 CMMCConnection cConn;
 CMMCHostComm cHost;
 MMC_MODBUSWRITEHOLDINGREGISTERSTABLE_IN mbus_write_in;
-MMC_MODBUSWRITEHOLDINGREGISTERSTABLE_OUT mbus_write_out;
+MMC_MODBUSREADHOLDINGREGISTERSTABLE_OUT mbus_read_out;
 
-bool MBUS_PACKET_FLAG = false;
 #define MBUS_CONNCETION_SUCESS_LIM 10  // about 0.1sec
 #define MBUS_CONNCETION_TIMEOUT_LIM 10 // about 0.1sec
 
-void ReadAllInputData();
 int OnRunTimeError(const char* msg, unsigned int uiConnHndl, unsigned short usAxisRef, short sErrorID, unsigned short usStatus);
 void Emergency_Received(unsigned short usAxisRef, short sEmcyCode);
-void ModbusWrite_Received();
+int CallbackFunc(unsigned char* recvBuffer, short recvBufferSize, void* lpsock);
 
 void MainInit() {
   gConnHndl = cConn.ConnectIPCEx(0x7fffffff, (MMC_MB_CLBK)CallbackFunc);
@@ -80,12 +78,14 @@ void EnableMachineSequencesTimer(int TimerCycle) {
 }
 
 
-void MachineSequences() {
+void StartMain() {
   EnableMachineSequencesTimer(TIMER_CYCLE);
   while(!giTerminate) {
     // if(giTerminate) return;
-    ReadAllInputData();
+    // Modbusからの入力を受け付ける
+    cHost.MbusReadHoldingRegisterTable(MODBUS_READ_OUTPUT_INDEX, MODBUS_READ_CNT, mbus_read_out);
 
+    // modbusのレジスタを出力する(update()関数で更新する)
     mbus_write_in.startRef = MODBUS_WRITE_IN_INDEX; // index of start write modbus register.
     mbus_write_in.refCnt   = MODBUS_WRITE_IN_CNT;   // number of indexes to write
 
@@ -97,23 +97,12 @@ void MachineSequences() {
   }
 }
 
-void ReadAllInputData() {
-  MMC_MODBUSREADHOLDINGREGISTERSTABLE_OUT mbus_read_out;
-  cHost.MbusReadHoldingRegisterTable(MODBUS_READ_OUTPUT_INDEX, MODBUS_READ_CNT, mbus_read_out);
-  /* control_a1.set_CommandFromHost(mbus_read_out.regArr, eCommand1); */
-  /* control_a1.set_GainAgan(mbus_read_out.regArr, eKP_pos); */
-  return;
-}
-
 int CallbackFunc(unsigned char* recvBuffer, short recvBufferSize, void* lpsock) {
-  spdlog::error("CallbackFunc called");
-  spdlog::error("  recvBufferSize = {}", recvBufferSize);
-  spdlog::error("   Event  type = {}", (int)recvBuffer[1]);
-  for(auto i = 0; i < recvBufferSize; i++) spdlog::warn(" buf[{}] = {}", i, (int)recvBuffer[i]);
-  spdlog::error("  lpsok = {}", lpsock);
-
   std::string error_msg = "unknown error";
-  switch(recvBuffer[1]) {
+  switch(recvBuffer[0]) {
+    case 0:
+    case MODBUS_WRITE_EVT: error_msg = "Modbus Write Event received - Updating Outputs"; return 1;
+
     case EMCY_EVT: error_msg = "Emergency Event Recieeved"; break;
     case MOTIONENDED_EVT: error_msg = "Motion Ended Event received"; break;
     case HBEAT_EVT: error_msg = "H Beat Fail Event received"; break;
@@ -121,7 +110,6 @@ int CallbackFunc(unsigned char* recvBuffer, short recvBufferSize, void* lpsock) 
     case DRVERROR_EVT: error_msg = "Drive Error Received Event received"; break;
     case HOME_ENDED_EVT: error_msg = "Home Ended Event received"; break;
     case SYSTEMERROR_EVT: error_msg = "System Error Event received"; break;
-    case MODBUS_WRITE_EVT: error_msg = "Modbus Write Event received - Updating Outputs"; break;
     case TOUCH_PROBE_ENDED_EVT: error_msg = "Touch Probe Ended Event received"; break;
     case NODE_ERROR_EVT: error_msg = "Node Error Event received"; break;
     case STOP_ON_LIMIT_EVT: error_msg = "Stop On Limit Event received"; break;
@@ -133,6 +121,13 @@ int CallbackFunc(unsigned char* recvBuffer, short recvBufferSize, void* lpsock) 
     case POLICY_ENDED_EVT: error_msg = "Policy Ended Event received"; break;
     default: error_msg = "unknown error";
   }
+
+  spdlog::error("CallbackFunc called");
+  spdlog::error("  recvBufferSize = {}", recvBufferSize);
+  spdlog::error("   Event  type = {}", (int)recvBuffer[1]);
+  for(auto i = 0; i < recvBufferSize; i++) spdlog::warn(" buf[{}] = {}", i, (int)recvBuffer[i]);
+  spdlog::error("  lpsok = {}", lpsock);
+
   spdlog::error("  error_msg = {}", error_msg);
   giTerminate = true;
   return 1;
@@ -159,11 +154,6 @@ void TerminateApplication(int iSigNum) {
   // control_a1.abort();
   giTerminate = true;
   std::abort();
-}
-
-void ModbusWrite_Received() {
-  MBUS_PACKET_FLAG = TRUE;
-  spdlog::info("Modbus Write Received");
 }
 
 void Emergency_Received(unsigned short usAxisRef, short sEmcyCode) { spdlog::error("Emergency Message Received on Axis %d. Code: %x\n", usAxisRef, sEmcyCode); }

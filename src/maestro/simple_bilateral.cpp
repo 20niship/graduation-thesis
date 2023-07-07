@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     control_a1.set_KP(kp);
     control_a1.set_KD(kd);
 
-    MachineSequences();
+    StartMain();
     return 0;
   } catch(CMMCException excp) {
     spdlog::error("CMMCException: {}", excp.what());
@@ -95,4 +95,8 @@ void update() {
     spdlog::info("Terminate app by key press");
     TerminateApplication(0);
   }
+}
+
+void ModbusWrite_Received() {
+  spdlog::info("Modbus Write Received");
 }
