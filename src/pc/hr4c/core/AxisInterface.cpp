@@ -42,9 +42,14 @@ void AxisInterface::update_sensor() {
     exit(1);
   }
   server->read_axis_data();
-  pos = server->read_axis_data<int32_t>(m_modbus_id + eActualPos);
-  vel = server->read_axis_data<int32_t>(m_modbus_id + eActualVel);
-  cur = server->read_axis_data<int32_t>(m_modbus_id + eActualTor);
+  auto t_pos = server->read_axis_data<int32_t>(m_modbus_id + eActualPos);
+  auto t_vel = server->read_axis_data<int32_t>(m_modbus_id + eActualVel);
+  auto t_cur = server->read_axis_data<int32_t>(m_modbus_id + eActualTor);
+  if(t_pos != 0 && t_vel != 0 && t_cur != 0) {
+    pos = t_pos;
+    vel = t_vel;
+    cur = t_cur;
+  }
 }
 
 double AxisInterface::get_motorOtptAxis_rad() { return (pos - m_start_pos) * (2.0 * M_PI / 4095.) + enc0_slave_rad; }

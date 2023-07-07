@@ -57,10 +57,6 @@ int main(int argc, char* argv[]) {
   while(!kbhit() && loop) {
     for(auto& axis : axes) {
       axis.axis.update_sensor();
-      auto pos = axis.axis.get_pos();
-      auto v   = axis.axis.get_vel();
-      auto c   = axis.axis.get_cur();
-      spdlog::info("pos: {}, vel: {}, cur: {}", pos, v, c);
     }
     loop = hr4c::newframe_gui();
     {
@@ -117,11 +113,22 @@ int main(int argc, char* argv[]) {
           spdlog::info("axis {} start!!", axis.name);
           // axis.axis.poweron();
         }
+        static int homing = 1000;
         if(ImGui::Button("Home")) {
-          spdlog::info("home start!!");
-          // axis.axis.home();
+          homing = 0;
         }
-        ImGui::SameLine();
+        if(homing < 1000) {
+          ImGui::SameLine();
+          homing++;
+          spdlog::info("home start!!");
+          auto client = hr4c::ModbusClient::Get();
+          client->set_command_data<int32_t>(hr4c::eCommand1, (int)axis.command_pos);
+          client->set_command_data<int32_t>(hr4c::eCommand2, 1);
+          client->set_command_data<int32_t>(hr4c::eCommand3, 1);
+          client->send_command_data();
+          ImGui::Text("Homing %d", homing);
+        }
+
         if(ImGui::Button("Stop")) {
           spdlog::info("stop start!!");
           // axis.axis.stop();
@@ -137,7 +144,7 @@ int main(int argc, char* argv[]) {
           default_pos = axis.axis.get_pos();
         }
         ImGui::DragFloat("Rotate", &axis.command_pos, 0.2);
-        if(i == 1) {
+        if(i == 1 && homing >= 990) {
           if(axis.command) {
             auto target = static_cast<int32_t>(axis.command_pos * 4096 + default_pos);
             ImGui::Text("Target %d", target);
