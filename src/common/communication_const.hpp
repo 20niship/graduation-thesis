@@ -18,11 +18,11 @@ namespace hr4c {
 // MODBUS ARRAY ID
 // #define MODBUS_TIME_START_INDEX 0 // 0 <= id <8 is h, m, s, sec
 
-enum mbusStartIdlist {
+enum mbusStartIdlist : int {
   eTimeStartId = 0, // regArr[eTimeStart] ~ regArr[eTimeStart+8] is Time
 
-  eAx1 = 10, // regArr[eAx1] ~ regArr[eAx1+6] is pos1, vel1, tor1,
-  eAx2 = 20, // regArr[eAx1] ~ regArr[eAx1+6] is pos1, vel1, tor1,
+  eAx1 = 4,  // regArr[eAx1] ~ regArr[eAx1+6] is pos1, vel1, tor1,
+  eAx2 = 18, // regArr[eAx1] ~ regArr[eAx1+6] is pos1, vel1, tor1,
 
   eActualPos = 0,
   eActualVel = 2,
@@ -32,7 +32,7 @@ enum mbusStartIdlist {
   eKpVel     = 10,
   eKiVel     = 12,
 
-  eCommand1  = 22, // regArr[eCommand1 ~ eCommand1+2] is pos_r, cur_lim,
+  eCommand1 = 22, // regArr[eCommand1 ~ eCommand1+2] is pos_r, cur_lim,
 };
 
 } // namespace hr4c

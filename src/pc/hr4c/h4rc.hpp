@@ -3,6 +3,7 @@
 
 #include <hr4c/AxisInterface.hpp>
 #include <hr4c/robotbase.hpp>
+#include "../common/communication_const.hpp"
 
 namespace hr4c {
 

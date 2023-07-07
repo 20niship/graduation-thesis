@@ -31,16 +31,20 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  hr4c::AxisInterface axis(0);
+  std::vector<hr4c::AxisInterface> axes;
+  axes.emplace_back(hr4c::eAx1);
+  axes.emplace_back(hr4c::eAx2);
 
   // axis.poweron();
 
   while(!kbhit()) {
-    axis.update_sensor();
-    auto pos = axis.get_pos();
-    auto v = axis.get_vel();
-    auto c = axis.get_cur();
-    spdlog::info("pos: {}, vel: {}, cur: {}", pos, v, c);
+    for(auto& axis : axes) {
+      axis.update_sensor();
+      auto pos = axis.get_pos();
+      auto v   = axis.get_vel();
+      auto c   = axis.get_cur();
+      spdlog::info("pos: {}, vel: {}, cur: {}", pos, v, c);
+    }
   }
 
   hr4c::terminate();

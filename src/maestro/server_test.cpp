@@ -86,31 +86,26 @@ void update() {
   nFrames++;
 
   control_a2.update();
-  auto pos = control_a2.get_pos();
-  control_a1.set_target(pos);
+  control_a1.update();
 
   {
-    static int k = 0;
-    static int i = 0;
-    k++;
-    if(k > 500) {
-      i++;
-      k = 0;
-    }
-    if(i > 100) i = 0;
-
-    int32_t tmp_pos = control_a1.get_pos() + i;
-    int32_t tmp_vel = control_a1.get_vel() + 99999 + i;
-    int32_t tmp_tor = control_a1.get_tor_order() + 9999999 + i; // mA
+    int32_t tmp_pos = control_a1.get_pos();
+    int32_t tmp_vel = control_a1.get_vel();
+    int32_t tmp_tor = control_a1.get_tor_order();
     int start_ref   = hr4c::eAx1;
     send_n_to16bit<int32_t>(tmp_pos, mbus_write_in.regArr, start_ref + hr4c::eActualPos);
-    send_n_to16bit<int32_t>(tmp_vel * 10, mbus_write_in.regArr, start_ref + hr4c::eActualVel);
-    send_n_to16bit<int32_t>(tmp_tor * 100, mbus_write_in.regArr, start_ref + hr4c::eActualTor);
+    send_n_to16bit<int32_t>(tmp_vel, mbus_write_in.regArr, start_ref + hr4c::eActualVel);
+    send_n_to16bit<int32_t>(tmp_tor, mbus_write_in.regArr, start_ref + hr4c::eActualTor);
     spdlog::info("pos: {}, vel: {}, tor: {}", tmp_pos, tmp_vel, tmp_tor);
+
     start_ref = hr4c::eAx2;
-    send_n_to16bit<int32_t>(tmp_pos * 2, mbus_write_in.regArr, start_ref + hr4c::eActualPos);
-    send_n_to16bit<int32_t>(tmp_vel * 2, mbus_write_in.regArr, start_ref + hr4c::eActualVel);
-    send_n_to16bit<int32_t>(tmp_tor * 2, mbus_write_in.regArr, start_ref + hr4c::eActualTor);
+    tmp_pos   = control_a2.get_pos();
+    tmp_vel   = control_a2.get_vel();
+    tmp_tor   = control_a2.get_tor_order();
+    send_n_to16bit<int32_t>(tmp_pos, mbus_write_in.regArr, start_ref + hr4c::eActualPos);
+    send_n_to16bit<int32_t>(tmp_vel, mbus_write_in.regArr, start_ref + hr4c::eActualVel);
+    send_n_to16bit<int32_t>(tmp_tor, mbus_write_in.regArr, start_ref + hr4c::eActualTor);
+    spdlog::info("pos: {}, vel: {}, tor: {}", tmp_pos, tmp_vel, tmp_tor);
   }
 
   if(isKeyPressed()) {
