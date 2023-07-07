@@ -54,7 +54,7 @@ void TorControls::sync_state() {
   now_vel = axis.GetActualVelocity();
 }
 
-void TorControls::p_pi_controlAxis() {
+void TorControls::p_pi_controlAxis(bool verbose) {
 #if 0
 MC_BUFFERED_MODE_ENUM eBufferMode;
 OPM402 drvMode;
@@ -87,7 +87,8 @@ return;
 
   tor_order = up + ud; //+ ui;
   tor_order = std::min(std::max(tor_order, -lim_mA), lim_mA);
-  std::cout << "p " << now_pos << " \t v " << now_vel << " \t t " << target_pos << " \t [tor] " << tor_order << " [lim] " << lim_mA << std::endl;
+  if(verbose) spdlog::info("p {} \t v {} \t t {} \t [tor] {} [lim] {}", now_pos, now_vel, target_pos, tor_order, lim_mA);
+
   axis.MoveTorque(tor_order, 5.0e6, 1.0 * 1e8, MC_ABORTING_MODE);
 
   last_pos_error = pos_error;

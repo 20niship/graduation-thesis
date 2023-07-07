@@ -63,16 +63,16 @@ public:
 
   template <typename T> void set_axis_data(int index, const T data) {
     assert(index < MODBUS_AXIS_DATA_NUM);
-    const void* data_ptr = static_cast<const void*>(&data);
+    const uint16_t* data_ptr = static_cast<const uint16_t*>((void*)&data);
     for(size_t i = 0; i < sizeof(T) / sizeof(uint16_t); i++) {
-      m_tab_reg[index + i] = *(static_cast<const uint16_t*>(data_ptr) + i);
+      m_tab_reg[index + i] = data_ptr[i];
     }
   }
   template <typename T> void set_command_data(int index, const T data) {
     assert(index < MODBUS_AXIS_DATA_NUM);
-    const void* data_ptr = static_cast<const void*>(&data);
+    const uint16_t* data_ptr = static_cast<const uint16_t*>((void*)&data);
     for(size_t i = 0; i < sizeof(T) / sizeof(uint16_t); i++) {
-      m_cmd_reg[index + i] = *(static_cast<const uint16_t*>(data_ptr) + i);
+      m_cmd_reg[index + i] = data_ptr[i];
     }
   }
 

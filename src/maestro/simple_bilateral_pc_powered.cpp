@@ -8,7 +8,7 @@ TorControls control_a1, control_a2;
 
 int main(int argc, char* argv[]) {
   float kp = 0.01;
-  float kd = 1;
+  float kd = 0.1;
 
   if(argc == 3) {
     kp = std::stof(argv[1]);
@@ -44,9 +44,11 @@ int main(int argc, char* argv[]) {
 
     control_a1.set_KP(kp);
     control_a1.set_KD(kd);
+    control_a1.set_limit(500);
 
     control_a2.set_KP(kp);
     control_a2.set_KD(kd);
+    control_a1.set_limit(500);
 
     StartMain();
     return 0;
@@ -102,6 +104,8 @@ template <typename T> T read_n_from16bit(const int16_t* ptr, int index) {
   return ret;
 };
 
+bool a2_pc_controlling = false;
+
 void update() {
   if(giTerminate) return; //	Avoid reentrance of this time function
   static unsigned long nFrames = 0;
@@ -111,6 +115,7 @@ void update() {
   auto pos = control_a2.get_pos();
   control_a1.set_target(pos);
   control_a1.p_pi_controlAxis();
+  if(a2_pc_controlling) control_a2.p_pi_controlAxis();
 
   {
     int32_t tmp_pos = control_a1.get_pos();
@@ -139,11 +144,12 @@ void update() {
 }
 
 void ModbusWrite_Received() {
-  spdlog::info("Modbus Write Received");
   auto hoge   = read_n_from16bit<int32_t>(mbus_read_out.regArr, hr4c::eCommand1);
-  auto target = read_n_from16bit<double>(mbus_read_out.regArr, hr4c::eCommand2);
-  if(hoge != 0 && target != 0) {
-    spdlog::info("move to {}, {}", hoge, target);
+  auto target = read_n_from16bit<int32_t>(mbus_read_out.regArr, hr4c::eCommand2);
+  auto mode   = read_n_from16bit<int32_t>(mbus_read_out.regArr, hr4c::eCommand3);
+  if(hoge != 0 && target != 0 && mode != 0) {
+    a2_pc_controlling = mode > 0;
+    spdlog::info("move to    {}, {} {} {}", hoge, target, mode, a2_pc_controlling);
     control_a2.set_target(target);
   }
   for(int i = 0; i < MODBUS_READ_CNT; i++) mbus_read_out.regArr[i] = 0;

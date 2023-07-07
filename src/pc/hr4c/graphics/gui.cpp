@@ -125,7 +125,7 @@ void terminate_gui() {
 
 void plot_axis(const std::string& name, const AxisBuffer* data) {
   static float history = 1.0f;
-  ImGui::SliderFloat("History", &history, 1, 10, "%.1f s");
+  ImGui::SliderFloat("History", &history, 1, 3, "%.1f s");
   auto s = "plot " + name;
   if(ImPlot::BeginPlot(s.c_str(), ImVec2(-1, 200))) {
     ImPlot::SetupAxes("time", "v");

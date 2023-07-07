@@ -40,7 +40,7 @@ struct ScrollingBuffer {
 struct AxisBuffer {
   ScrollingBuffer sd_pos, sd_vel, sd_tor;
   float t = 0;
-  AxisBuffer(int max_size = 500) {
+  AxisBuffer(int max_size = 1000) {
     sd_pos = ScrollingBuffer(max_size);
     sd_vel = ScrollingBuffer(max_size);
     sd_tor = ScrollingBuffer(max_size);

@@ -109,7 +109,9 @@ int main(int argc, char* argv[]) {
     if(ImGui::CollapsingHeader("Axis", true)) {
       ImGui::Text("Axis");
       ImGui::SameLine();
+      int i = 0;
       for(auto& axis : axes) {
+        i++;
         ImGui::Text("%s", axis.name.c_str());
         if(ImGui::Button(axis.name.c_str())) {
           spdlog::info("axis {} start!!", axis.name);
@@ -130,15 +132,27 @@ int main(int argc, char* argv[]) {
           // axis.axis.reset();
         }
         ImGui::Separator();
-        ImGui::Checkbox("Command", &axis.command);
-        ImGui::DragFloat("Rotate", &axis.command_pos, 1);
-        if(axis.command) {
-          auto target = static_cast<int32_t>(axis.command_pos * 4096 + axis.axis.get_pos());
-          ImGui::Text("Target %d", target);
-          auto client = hr4c::ModbusClient::Get();
-          client->set_command_data<int32_t>(hr4c::eCommand1, (int)axis.command_pos);
-          client->set_command_data<double>(hr4c::eCommand3, target);
-          client->send_command_data();
+        static int32_t default_pos = axis.axis.get_pos();
+        if(ImGui::Checkbox("Command", &axis.command)) {
+          default_pos = axis.axis.get_pos();
+        }
+        ImGui::DragFloat("Rotate", &axis.command_pos, 0.2);
+        if(i == 1) {
+          if(axis.command) {
+            auto target = static_cast<int32_t>(axis.command_pos * 4096 + default_pos);
+            ImGui::Text("Target %d", target);
+            auto client = hr4c::ModbusClient::Get();
+            client->set_command_data<int32_t>(hr4c::eCommand1, (int)axis.command_pos);
+            client->set_command_data<int32_t>(hr4c::eCommand2, target);
+            client->set_command_data<int32_t>(hr4c::eCommand3, 1);
+            client->send_command_data();
+          } else {
+            auto client = hr4c::ModbusClient::Get();
+            client->set_command_data<int32_t>(hr4c::eCommand1, (int)axis.command_pos);
+            client->set_command_data<int32_t>(hr4c::eCommand2, 1);
+            client->set_command_data<int32_t>(hr4c::eCommand3, -1);
+            client->send_command_data();
+          }
         }
       }
     }
