@@ -57,6 +57,7 @@ bool newframe_gui() {
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
+  ImGui::DockSpaceOverViewport(); // https://github.com/ocornut/imgui/issues/5086
   return !should_close;
 }
 
