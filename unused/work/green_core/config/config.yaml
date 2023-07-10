@@ -1,0 +1,84 @@
+system:
+    control_frequency: 1000
+
+socket:
+    port: 54321
+
+joints:
+    controller_ip: 172.16.1.10
+    controller_send_port: 8890
+    controller_recv_port: 8891
+    joint_names: ["j1", "j2", "j3", "j4", "j5", "j6"]
+    j1:
+        b_id: 0x01
+        gear_ratio: 10.0
+        gear_efficiency: 0.9
+        torque_constant: 0.24
+        pulse_per_round: 500000
+        max: 2.35
+        min: -2.35
+        dir: 1
+        dev: none
+    j2:
+        b_id: 0x02
+        gear_ratio: 10.0
+        gear_efficiency: 0.9
+        torque_constant: 0.24
+        pulse_per_round: 500000
+        max: 2.4
+        min: -1.1
+        dir: 1
+        dev: none
+    j3:
+        b_id: 0x03
+        gear_ratio: 10.0
+        gear_efficiency: 0.9
+        torque_constant: 0.24
+        pulse_per_round: 500000
+        max: 4.1
+        min: -0.7
+        dir: 1
+        dev: none
+    j4:
+        b_id: 0x04
+        gear_ratio: 1.0
+        gear_efficiency: 1.0
+        torque_constant: 0.1
+        pulse_per_round: 320000
+        max: 2.1
+        min: -2.1
+        dir: -1
+        dev: none
+    j5:
+        b_id: 0x05
+        gear_ratio: 1.0
+        gear_efficiency: 1.0
+        torque_constant: 0.10
+        pulse_per_round: 320000
+        max: 2.2
+        min: -2.2
+        dir: -1
+        dev: none
+    j6:
+        b_id: 0x06
+        gear_ratio: 1.0
+        gear_efficiency: 1.0
+        torque_constant: 0.1
+        pulse_per_round: 320000
+        max: 31.4
+        min: -31.4
+        dir: -1
+        dev: none
+log:
+    debug_log:
+        #log_level: debug # off / trace / debug / info / warn / err / critical
+        log_level: info # off / trace / debug / info / warn / err / critical
+        max_size_mb: 5
+        rotate_num: 3
+    user_log:
+        max_sec: 3600
+        save_dir: /tmp/
+
+teaching:
+    max_sec: 3600
+    max_motion_num: 10
